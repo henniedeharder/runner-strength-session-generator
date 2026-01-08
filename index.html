@@ -18,6 +18,19 @@
       --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.45);
     }
 
+    body[data-theme="light"] {
+      --bg: #f3f4f6;
+      --card-bg: #ffffff;
+      --accent: #0f766e;
+      --accent-soft: rgba(15, 118, 110, 0.08);
+      --accent-strong: #0d9488;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --danger: #b91c1c;
+      --border: #e5e7eb;
+      --shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -32,6 +45,11 @@
       display: flex;
       align-items: stretch;
       justify-content: center;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    body[data-theme="light"] {
+      background: radial-gradient(circle at top, #e5e7eb 0, #f3f4f6 55%);
     }
 
     .page {
@@ -43,6 +61,7 @@
     .header {
       text-align: center;
       margin-bottom: 24px;
+      position: relative;
     }
 
     .title {
@@ -61,19 +80,79 @@
       color: var(--text-muted);
     }
 
+    .theme-toggle {
+      position: absolute;
+      right: 0;
+      top: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .theme-toggle input {
+      display: none;
+    }
+
+    .theme-switch {
+      width: 38px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.4);
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      position: relative;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .theme-knob {
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #f9fafb;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.5);
+      transition: transform 0.2s ease;
+    }
+
+    #themeToggle:checked + .theme-switch .theme-knob {
+      transform: translateX(18px);
+    }
+
+    #themeToggle:checked + .theme-switch {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
     .shell {
-      display: grid;
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
-      gap: 20px;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+    grid-template-areas: "setup results";
+    gap: 20px;
+    }
+
+    .setup-card {
+    grid-area: setup;
+    }
+
+    .results-card {
+    grid-area: results;
     }
 
     @media (max-width: 900px) {
-      .shell {
+    .shell {
         grid-template-columns: 1fr;
-      }
-      .page {
+        grid-template-areas:
+        "setup"
+        "results";
+    }
+    .page {
         padding: 18px 12px;
-      }
+    }
     }
 
     .card {
@@ -84,6 +163,12 @@
       padding: 18px 18px 20px;
       position: relative;
       overflow: hidden;
+      transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    body[data-theme="light"] .card {
+      background: linear-gradient(135deg, #ffffff, #f9fafb);
+      border-color: #e5e7eb;
     }
 
     .card::before {
@@ -115,6 +200,10 @@
       color: #e5e7eb;
     }
 
+    body[data-theme="light"] .card-title h2 {
+      color: #111827;
+    }
+
     .card-badge {
       font-size: 0.75rem;
       padding: 4px 10px;
@@ -141,7 +230,12 @@
       border-radius: 8px;
       padding: 10px 10px 9px;
       border: 1px solid rgba(31, 41, 55, 0.9);
-      transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s, opacity 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s, opacity 0.2s, background 0.25s ease;
+    }
+
+    body[data-theme="light"] .input-group {
+      background: #f9fafb;
+      border-color: #e5e7eb;
     }
 
     .input-group:hover {
@@ -155,6 +249,10 @@
       font-weight: 600;
       color: #e5e7eb;
       margin-bottom: 4px;
+    }
+
+    body[data-theme="light"] label {
+      color: #111827;
     }
 
     .hint {
@@ -177,7 +275,13 @@
       font-size: 0.9rem;
       max-width: 160px;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s ease, color 0.2s ease;
+    }
+
+    body[data-theme="light"] input[type="number"] {
+      background: #ffffff;
+      border-color: #d1d5db;
+      color: #111827;
     }
 
     input[type="number"]:focus {
@@ -262,6 +366,10 @@
       transform: none;
     }
 
+    body[data-theme="light"] .btn-secondary:hover {
+      color: #111827;
+    }
+
     .btn-icon {
       font-size: 1.05rem;
     }
@@ -295,15 +403,21 @@
 
     .results-header {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       gap: 8px;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .results-header h2 {
       margin: 0;
       font-size: 1.08rem;
+    }
+
+    .results-summary-line {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
     }
 
     .results-right-actions {
@@ -342,6 +456,12 @@
       padding: 10px 12px;
       border: 1px solid rgba(31, 41, 55, 0.9);
       position: relative;
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+
+    body[data-theme="light"] .category-block {
+      background: #ffffff;
+      border-color: #e5e7eb;
     }
 
     .category-header {
@@ -357,6 +477,10 @@
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: #d1d5db;
+    }
+
+    body[data-theme="light"] .category-name {
+      color: #111827;
     }
 
     .category-pill {
@@ -415,6 +539,10 @@
       color: #e5e7eb;
     }
 
+    body[data-theme="light"] .exercise-main {
+      color: #111827;
+    }
+
     .exercise-detail {
       display: block;
       font-size: 0.8rem;
@@ -441,18 +569,27 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       cursor: default;
+      background: rgba(15, 23, 42, 0.6);
+    }
+
+    body[data-theme="light"] .exercise-tag {
+      background: rgba(209, 250, 229, 0.7);
     }
 
     /* Tooltip – uses JS-set CSS vars for nice width/position on desktop & mobile */
     .exercise-tag[data-tooltip]::after {
       content: attr(data-tooltip);
       position: fixed;
+      left: var(--tooltip-left, 50%);
+      top: var(--tooltip-top, 0px);
+      width: var(--tooltip-width, auto);
+      max-width: 380px;
+      transform: translateX(-50%) translateY(-8px);
       background: #020617;
       color: #e5e7eb;
       padding: 5px 7px;
       border-radius: 6px;
-      white-space: nowrap;
-      max-width: 380px;
+      white-space: normal;
       font-size: 0.7rem;
       opacity: 0;
       pointer-events: none;
@@ -464,23 +601,22 @@
 
     .exercise-tag[data-tooltip]::before {
       content: "";
-      position: absolute;
-      left: 50%;
-      bottom: 115%;
+      position: fixed;
+      left: var(--tooltip-left, 50%);
+      top: calc(var(--tooltip-top, 0px) + 4px);
       transform: translateX(-50%);
       border-width: 5px;
       border-style: solid;
       border-color: #020617 transparent transparent transparent;
       opacity: 0;
       transition: opacity 0.12s ease-out;
-      z-index: 21;
+      z-index: 9999;
     }
 
     .exercise-tag[data-tooltip]:hover::after,
     .exercise-tag[data-tooltip]:hover::before {
-    opacity: 1;
+      opacity: 1;
     }
-
 
     /* Checkbox done style */
     .exercise-item.done .exercise-main,
@@ -506,14 +642,25 @@
     .legend strong {
       color: #e5e7eb;
     }
+
+    body[data-theme="light"] .legend strong {
+      color: #111827;
+    }
   </style>
 </head>
-<body>
+<body data-theme="dark">
   <div class="page">
     <header class="header">
       <h1 class="title">
         Runner <span>Strength</span> Session Builder
       </h1>
+      <label class="theme-toggle">
+        <span id="themeLabel">Dark</span>
+        <input type="checkbox" id="themeToggle">
+        <div class="theme-switch">
+          <div class="theme-knob"></div>
+        </div>
+      </label>
       <p class="subtitle">
         Change either the total exercises or the per-category numbers. The last field you edit decides how the workout is built.
         <br> Drag categories in the setup to customize their order.
@@ -541,13 +688,26 @@
             <!-- Total exercises input -->
             <div class="input-group" id="totalGroup">
               <label for="totalInput">Total number of exercises (all categories)</label>
-              <input id="totalInput" type="number" min="1" max="21" value="7">
+              <input id="totalInput" type="number" min="1" max="21" value="11">
               <div class="hint">
                 We’ll pick at least one per category (if possible), then fill randomly up to this total.
               </div>
             </div>
 
             <!-- Per category inputs (draggable) -->
+            <div
+              class="input-group per-category-group"
+              id="drillsGroup"
+              data-category="drills"
+              draggable="true"
+            >
+              <label for="drillsInput">Drills / Prehab</label>
+              <input id="drillsInput" type="number" min="0" max="3" value="2">
+              <div class="hint">
+                Options: <span>heel walks, calf walks, theraband routine (ankles)</span>
+              </div>
+            </div>
+
             <div
               class="input-group per-category-group"
               id="squatGroup"
@@ -607,22 +767,9 @@
               draggable="true"
             >
               <label for="coreInput">Core</label>
-              <input id="coreInput" type="number" min="0" max="3" value="2">
+              <input id="coreInput" type="number" min="0" max="3" value="1">
               <div class="hint">
                 Options: <span>dead bug, side plank, plank</span>
-              </div>
-            </div>
-
-            <div
-              class="input-group per-category-group"
-              id="drillsGroup"
-              data-category="drills"
-              draggable="true"
-            >
-              <label for="drillsInput">Drills / Prehab</label>
-              <input id="drillsInput" type="number" min="0" max="3" value="2">
-              <div class="hint">
-                Options: <span>heel walks, calf walks, theraband routine (ankles)</span>
               </div>
             </div>
           </div>
@@ -653,10 +800,10 @@
                 <span class="btn-icon">📋</span>
                 Copy workout
               </button>
-              <div class="results-badge" id="sessionSummary">
-                Ready when you are.
-              </div>
             </div>
+          </div>
+          <div class="results-summary-line" id="resultsSummaryLine">
+            <!-- Filled by JS -->
           </div>
           <div class="results-meta">
             Focus: <span>running performance, stability, durability, and prehab</span>.  
@@ -1001,14 +1148,14 @@
       const { error, data, counts, mode } = resultObject;
       const errorDiv = document.getElementById("error");
       const resultsDiv = document.getElementById("results");
-      const summary = document.getElementById("sessionSummary");
+      const summaryLine = document.getElementById("resultsSummaryLine");
       const modeText = document.getElementById("modeText");
 
       if (error) {
         errorDiv.textContent = error;
         errorDiv.style.display = "block";
         resultsDiv.innerHTML = "";
-        summary.textContent = "Fix the inputs to generate a session.";
+        summaryLine.textContent = "Fix the inputs to generate a session.";
         return;
       } else {
         errorDiv.textContent = "";
@@ -1022,19 +1169,13 @@
         counts.squat + counts.hinge + counts.unilateral + counts.plyo + counts.core + counts.drills;
 
       if (totalExercises === 0) {
-        summary.textContent = "No exercises selected yet – change an input and generate.";
+        summaryLine.textContent = "No exercises selected yet – change an input and generate.";
       } else {
-        if (mode === "perCategory") {
-          summary.textContent =
-            `${totalExercises} exercises selected • ` +
-            `Squat ${counts.squat}, Hinge ${counts.hinge}, Uni ${counts.unilateral}, ` +
-            `Plyo ${counts.plyo}, Core ${counts.core}, Drills ${counts.drills}`;
-        } else {
-          summary.textContent =
-            `${totalExercises} total exercises (auto-distributed) • ` +
-            `Squat ${counts.squat}, Hinge ${counts.hinge}, Uni ${counts.unilateral}, ` +
-            `Plyo ${counts.plyo}, Core ${counts.core}, Drills ${counts.drills}`;
-        }
+        const baseSummary =
+          `${totalExercises} exercises selected • ` +
+          `Squat ${counts.squat}, Hinge ${counts.hinge}, Uni ${counts.unilateral}, ` +
+          `Plyo ${counts.plyo}, Core ${counts.core}, Drills ${counts.drills}`;
+        summaryLine.textContent = baseSummary;
       }
 
       const categoryLabels = {
@@ -1149,13 +1290,13 @@
     }
 
     function applyRunnerPreset() {
-      document.getElementById("totalInput").value = 7;
+      document.getElementById("totalInput").value = 11;
+      document.getElementById("drillsInput").value = 2;
       document.getElementById("squatInput").value = 1;
-      document.getElementById("hingeInput").value = 1;
+      document.getElementById("hingeInput").value = 2;
       document.getElementById("unilateralInput").value = 3;
       document.getElementById("plyoInput").value = 1;
       document.getElementById("coreInput").value = 1;
-      document.getElementById("drillsInput").value = 1;
     }
 
     function updateInputHighlight() {
@@ -1284,6 +1425,35 @@
       });
     }
 
+    function initThemeToggle() {
+      const body = document.body;
+      const toggle = document.getElementById("themeToggle");
+      const label = document.getElementById("themeLabel");
+
+      const stored = localStorage.getItem("runner-strength-theme");
+      if (stored === "light") {
+        body.setAttribute("data-theme", "light");
+        toggle.checked = true;
+        label.textContent = "Light";
+      } else {
+        body.setAttribute("data-theme", "dark");
+        toggle.checked = false;
+        label.textContent = "Dark";
+      }
+
+      toggle.addEventListener("change", () => {
+        if (toggle.checked) {
+          body.setAttribute("data-theme", "light");
+          localStorage.setItem("runner-strength-theme", "light");
+          label.textContent = "Light";
+        } else {
+          body.setAttribute("data-theme", "dark");
+          localStorage.setItem("runner-strength-theme", "dark");
+          label.textContent = "Dark";
+        }
+      });
+    }
+
     document.getElementById("generateBtn").addEventListener("click", generateWorkout);
     document.getElementById("presetBtn").addEventListener("click", () => {
       applyRunnerPreset();
@@ -1304,6 +1474,7 @@
     });
 
     window.addEventListener("DOMContentLoaded", () => {
+      initThemeToggle();
       initDragAndDrop();
       updateInputHighlight();
       generateWorkout(); // this also calls initTagTooltips()
