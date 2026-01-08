@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Runner Strength Training Generator</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card-bg: #14192b;
+      --accent: #4fd1c5;
+      --accent-soft: rgba(79, 209, 197, 0.12);
+      --accent-strong: #38b2ac;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --danger: #f97373;
+      --border: #1f2937;
+      --radius: 10px;
+      --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1200px;
+      padding: 30px 18px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 1.9rem;
+      margin: 0;
+      letter-spacing: 0.03em;
+    }
+
+    .title span {
+      color: var(--accent);
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.6fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+      .page {
+        padding: 18px 12px;
+      }
+    }
+
+    .card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+      border-radius: var(--radius);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: -60%;
+      background: radial-gradient(circle at top left, rgba(79, 209, 197, 0.16), transparent 55%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .card-title h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .card-badge {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(79, 209, 197, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(79, 209, 197, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Inputs layout: one column */
+    .inputs-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 8px;
+      padding: 10px 10px 9px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s, opacity 0.2s;
+    }
+
+    .input-group:hover {
+      border-color: rgba(79, 209, 197, 0.6);
+      box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.2);
+      transform: translateY(-1px);
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #e5e7eb;
+      margin-bottom: 4px;
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .hint span {
+      color: var(--accent);
+    }
+
+    input[type="number"] {
+      margin-top: 4px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.8);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      max-width: 160px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.4);
+    }
+
+    .tip {
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: linear-gradient(90deg, rgba(79, 209, 197, 0.12), transparent);
+      border-radius: 7px;
+      padding: 7px 9px;
+      border: 1px solid rgba(79, 209, 197, 0.2);
+    }
+
+    .tip strong {
+      color: var(--accent-strong);
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: none;
+      margin-bottom: 4px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at top left, var(--accent), var(--accent-strong));
+      color: #0b1020;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      box-shadow: 0 10px 22px rgba(56, 178, 172, 0.35);
+      transition: transform 0.11s ease-out, box-shadow 0.11s ease-out, background 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(56, 178, 172, 0.45);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 14px rgba(56, 178, 172, 0.4);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-muted);
+      border-color: rgba(148, 163, 184, 0.3);
+      box-shadow: none;
+      text-transform: none;
+      letter-spacing: 0.02em;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(148, 163, 184, 0.6);
+      color: #e5e7eb;
+      transform: none;
+    }
+
+    .btn-icon {
+      font-size: 1.05rem;
+    }
+
+    .btn-small {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      box-shadow: 0 6px 14px rgba(56, 178, 172, 0.25);
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .dimmed {
+      opacity: 0.5;
+    }
+
+    .per-category-group {
+      position: relative;
+      cursor: grab;
+    }
+
+    .per-category-group.drag-over {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.4);
+    }
+
+    /* RESULTS */
+
+    .results-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .results-header h2 {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .results-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .results-badge {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .results-meta {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .results-meta span {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .category-block {
+      background: rgba(15, 23, 42, 0.88);
+      border-radius: 9px;
+      padding: 10px 12px;
+      border: 1px solid rgba(31, 41, 55, 0.9);
+      position: relative;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .category-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #d1d5db;
+    }
+
+    .category-pill {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text-muted);
+    }
+
+    .category-empty {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-style: italic;
+      padding-top: 2px;
+    }
+
+    .exercise-list {
+      margin: 0;
+      padding-left: 18px;
+      list-style: none;
+    }
+
+    .exercise-item {
+      font-size: 0.86rem;
+      padding: 3px 0;
+      border-top: 1px dashed rgba(55, 65, 81, 0.7);
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .exercise-item:first-child {
+      border-top: none;
+    }
+
+    .exercise-checkbox {
+      margin-top: 2px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .exercise-content {
+      flex: 1;
+    }
+
+    .exercise-main-line {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .exercise-main {
+      font-weight: 500;
+      color: #e5e7eb;
+    }
+
+    .exercise-detail {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-left: 2px;
+      margin-top: 1px;
+    }
+
+    .exercise-tags {
+      margin-left: 4px;
+    }
+
+    .exercise-tag {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 6px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      border: 1px solid rgba(79, 209, 197, 0.4);
+      color: var(--accent);
+      margin-left: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: default;
+    }
+
+    /* Tooltip – uses JS-set CSS vars for nice width/position on desktop & mobile */
+    .exercise-tag[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: fixed;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 5px 7px;
+      border-radius: 6px;
+      white-space: nowrap;
+      max-width: 380px;
+      font-size: 0.7rem;
+      opacity: 0;
+      pointer-events: none;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.9);
+      transition: opacity 0.12s ease-out, transform 0.12s ease-out;
+      z-index: 9999;
+    }
+
+    .exercise-tag[data-tooltip]::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 115%;
+      transform: translateX(-50%);
+      border-width: 5px;
+      border-style: solid;
+      border-color: #020617 transparent transparent transparent;
+      opacity: 0;
+      transition: opacity 0.12s ease-out;
+      z-index: 21;
+    }
+
+    .exercise-tag[data-tooltip]:hover::after,
+    .exercise-tag[data-tooltip]:hover::before {
+    opacity: 1;
+    }
+
+
+    /* Checkbox done style */
+    .exercise-item.done .exercise-main,
+    .exercise-item.done .exercise-detail {
+      text-decoration: line-through;
+      color: rgba(148, 163, 184, 0.7);
+    }
+
+    .legend {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .legend span {
+      white-space: nowrap;
+    }
+
+    .legend strong {
+      color: #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <h1 class="title">
+        Runner <span>Strength</span> Session Builder
+      </h1>
+      <p class="subtitle">
+        Change either the total exercises or the per-category numbers. The last field you edit decides how the workout is built.
+        <br> Drag categories in the setup to customize their order.
+      </p>
+    </header>
+
+    <main class="shell">
+      <!-- LEFT: INPUTS -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="card-title">
+            <h2>Setup</h2>
+            <div class="card-badge">Lower body + Core + Drills</div>
+          </div>
+
+          <p class="tip">
+            <strong>How it works:</strong> If your most recent change is the <strong>total exercises</strong>, we’ll
+            auto-distribute across categories. If your last change is any <strong>per-category</strong> field,
+            we’ll use exactly those numbers. You can also drag the category cards below to reorder how they appear.
+          </p>
+
+          <div id="error" class="error"></div>
+
+          <div class="inputs-column" id="inputsColumn">
+            <!-- Total exercises input -->
+            <div class="input-group" id="totalGroup">
+              <label for="totalInput">Total number of exercises (all categories)</label>
+              <input id="totalInput" type="number" min="1" max="21" value="7">
+              <div class="hint">
+                We’ll pick at least one per category (if possible), then fill randomly up to this total.
+              </div>
+            </div>
+
+            <!-- Per category inputs (draggable) -->
+            <div
+              class="input-group per-category-group"
+              id="squatGroup"
+              data-category="squat"
+              draggable="true"
+            >
+              <label for="squatInput">Squat</label>
+              <input id="squatInput" type="number" min="0" max="1" value="1">
+              <div class="hint">
+                Options: <span>goblet squat</span>
+              </div>
+            </div>
+
+            <div
+              class="input-group per-category-group"
+              id="hingeGroup"
+              data-category="hinge"
+              draggable="true"
+            >
+              <label for="hingeInput">Hinge</label>
+              <input id="hingeInput" type="number" min="0" max="4" value="2">
+              <div class="hint">
+                Options: <span>romanian deadlift, glute bridge, hip thrusts, hip raises</span>
+              </div>
+            </div>
+
+            <div
+              class="input-group per-category-group"
+              id="unilateralGroup"
+              data-category="unilateral"
+              draggable="true"
+            >
+              <label for="unilateralInput">Unilateral</label>
+              <input id="unilateralInput" type="number" min="0" max="10" value="3">
+              <div class="hint">
+                Options: <span>step-ups, single leg deadlift, lunge circuit, lunge with hinge, lunge to hip drive, hip lock knee drive, single leg glute bridge (heightened)</span>
+              </div>
+            </div>
+
+            <div
+              class="input-group per-category-group"
+              id="plyoGroup"
+              data-category="plyo"
+              draggable="true"
+            >
+              <label for="plyoInput">Plyometric</label>
+              <input id="plyoInput" type="number" min="0" max="3" value="1">
+              <div class="hint">
+                Options: <span>pogos, skipping, line hops</span>
+              </div>
+            </div>
+
+            <div
+              class="input-group per-category-group"
+              id="coreGroup"
+              data-category="core"
+              draggable="true"
+            >
+              <label for="coreInput">Core</label>
+              <input id="coreInput" type="number" min="0" max="3" value="2">
+              <div class="hint">
+                Options: <span>dead bug, side plank, plank</span>
+              </div>
+            </div>
+
+            <div
+              class="input-group per-category-group"
+              id="drillsGroup"
+              data-category="drills"
+              draggable="true"
+            >
+              <label for="drillsInput">Drills / Prehab</label>
+              <input id="drillsInput" type="number" min="0" max="3" value="2">
+              <div class="hint">
+                Options: <span>heel walks, calf walks, theraband routine (ankles)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="controls-row">
+            <button id="generateBtn" class="btn">
+              <span class="btn-icon">⚡</span>
+              Generate workout
+            </button>
+            <button id="presetBtn" class="btn btn-secondary" type="button">
+              Use runner preset
+            </button>
+          </div>
+
+          <p class="muted" style="margin-top:8px;">
+            Current mode: <span id="modeText">Per-category</span> (chosen by your last edit). You can tick exercises off as you complete them.
+          </p>
+        </div>
+      </section>
+
+      <!-- RIGHT: RESULTS -->
+      <section class="card">
+        <div class="card-inner">
+          <div class="results-header">
+            <h2>Your Strength Session</h2>
+            <div class="results-right-actions">
+              <button id="copyBtn" class="btn btn-small" type="button">
+                <span class="btn-icon">📋</span>
+                Copy workout
+              </button>
+              <div class="results-badge" id="sessionSummary">
+                Ready when you are.
+              </div>
+            </div>
+          </div>
+          <div class="results-meta">
+            Focus: <span>running performance, stability, durability, and prehab</span>.  
+            Perform this session 1–3× per week, away from your hardest run days.
+          </div>
+
+          <div id="results" class="results-list">
+            <!-- Filled by JS -->
+          </div>
+
+          <div class="legend">
+            <span><strong>Lower body strength:</strong> 3–4 sets × 6–8 reps</span>
+            <span><strong>Assistance / unilateral:</strong> 2–3 sets × 8–12 reps</span>
+            <span><strong>Core:</strong> 2–3 sets × 20–40 s or 8–10 reps</span>
+            <span><strong>Drills / prehab:</strong> 1–2 sets, technique-focused</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    let lastChangedField = "category";
+
+    const tagTooltips = {
+      "Strength": "Heavier, slower work to build force and resilience.",
+      "Assistance": "Lighter support work to build muscle and groove technique.",
+      "Stability": "Control and balance under load or movement.",
+      "Power": "Crisp, explosive movements with full control.",
+      "Drill": "Running-specific pattern work; stay smooth and rhythmic.",
+      "Prehab": "Joint and tissue care to stay ahead of injuries.",
+      "Core": "Trunk control to keep posture and pelvis stable.",
+      "Hinge": "Hip-dominant pattern; focus on hips moving back."
+    };
+
+    const exercises = {
+      squat: [
+        {
+          name: "goblet squat",
+          sets: "3–4",
+          reps: "6–8",
+          note: "Controlled tempo, focus on depth and bracing.",
+          tags: ["Strength"]
+        }
+      ],
+      hinge: [
+        {
+          name: "romanian deadlift",
+          sets: "3–4",
+          reps: "6–8",
+          note: "Hamstring and glute focus; maintain flat back.",
+          tags: ["Strength"]
+        },
+        {
+          name: "glute bridge",
+          sets: "3",
+          reps: "10–12",
+          note: "Pause 1–2 s at the top for glute squeeze.",
+          tags: ["Assistance"]
+        },
+        {
+          name: "hip thrusts",
+          sets: "3–4",
+          reps: "8–10",
+          note: "Drive through heels, keep ribs down.",
+          tags: ["Strength"]
+        },
+        {
+          name: "hip raises",
+          sets: "2–3",
+          reps: "10–12",
+          note: "Smooth lift and lower; focus on glute activation.",
+          tags: ["Assistance"]
+        }
+      ],
+      unilateral: [
+        {
+          name: "step-ups",
+          sets: "3",
+          reps: "8–10 / leg",
+          note: "Slow lower, control knee alignment.",
+          tags: ["Stability"]
+        },
+        {
+          name: "single leg deadlift",
+          sets: "3",
+          reps: "6–8 / leg",
+          note: "Balance + posterior chain; move slowly.",
+          tags: ["Stability", "Strength"]
+        },
+        {
+          name: "lunge circuit",
+          sets: "2–3",
+          reps: "4–6 reps of each lunge variation",
+          note: "Mix forward, reverse, and lateral lunges for control.",
+          tags: ["Stability", "Drill"]
+        },
+        {
+          name: "lunge with hinge",
+          sets: "2–3",
+          reps: "6–8 / leg",
+          note: "Control the forward lean; feel hamstrings and glutes.",
+          tags: ["Stability", "Hinge"]
+        },
+        {
+          name: "lunge to hip drive",
+          sets: "2–3",
+          reps: "6–8 / leg",
+          note: "Drive the knee up powerfully out of the lunge.",
+          tags: ["Power", "Drill"]
+        },
+        {
+          name: "hip lock knee drive",
+          sets: "2–3",
+          reps: "6–8 / leg",
+          note: "Pause briefly in the hip lock, tall posture.",
+          tags: ["Drill", "Stability"]
+        },
+        {
+          name: "single leg glute bridge (heightened)",
+          sets: "2–3",
+          reps: "8–10 / leg",
+          note: "Elevate shoulders or foot; focus on controlled hip drive.",
+          tags: ["Stability", "Assistance"]
+        }
+      ],
+      plyo: [
+        {
+          name: "pogos",
+          sets: "2–3",
+          reps: "15–20 contacts",
+          note: "Quick, light contacts; think “springy”.",
+          tags: ["Power"]
+        },
+        {
+          name: "skipping",
+          sets: "2–3",
+          reps: "20–30 m",
+          note: "Drive knee up, rhythmic arm swing.",
+          tags: ["Power", "Drill"]
+        },
+        {
+          name: "line hops",
+          sets: "2–3",
+          reps: "20–30 hops",
+          note: "Small, fast hops over a line; stay relaxed.",
+          tags: ["Power"]
+        }
+      ],
+      core: [
+        {
+          name: "dead bug",
+          sets: "2–3",
+          reps: "8–10 / side",
+          note: "Slow, controlled, low back stays on floor.",
+          tags: ["Core"]
+        },
+        {
+          name: "side plank",
+          sets: "2–3",
+          reps: "20–35 s / side",
+          note: "Straight line from ear to ankle; no sagging.",
+          tags: ["Core", "Stability"]
+        },
+        {
+          name: "plank",
+          sets: "2–3",
+          reps: "25–40 s",
+          note: "Ribs down, glutes tight, neutral neck.",
+          tags: ["Core"]
+        }
+      ],
+      drills: [
+        {
+          name: "heel walks",
+          sets: "1–2",
+          reps: "15–25 m",
+          note: "Walk on heels, toes up; focus on shin and ankle control.",
+          tags: ["Drill", "Prehab"]
+        },
+        {
+          name: "calf walks",
+          sets: "1–2",
+          reps: "15–25 m",
+          note: "Walk on toes, slow and controlled, tall posture.",
+          tags: ["Drill", "Prehab"]
+        },
+        {
+          name: "theraband routine (ankles)",
+          sets: "1–2",
+          reps: "10–15 each direction",
+          note: "Slow ankle motions in all directions against the band.",
+          tags: ["Prehab"]
+        }
+      ]
+    };
+
+    function getRandomSubset(arr, count) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy.slice(0, count);
+    }
+
+    function getCategoryOrderFromSetup() {
+      const groups = document.querySelectorAll(".per-category-group");
+      const order = [];
+      groups.forEach(g => {
+        const cat = g.getAttribute("data-category");
+        if (cat) order.push(cat);
+      });
+      return order;
+    }
+
+    function validatePerCategory(values) {
+      const config = [
+        { key: "squat", label: "Squat", max: exercises.squat.length },
+        { key: "hinge", label: "Hinge", max: exercises.hinge.length },
+        { key: "unilateral", label: "Unilateral", max: exercises.unilateral.length },
+        { key: "plyo", label: "Plyometric", max: exercises.plyo.length },
+        { key: "core", label: "Core", max: exercises.core.length },
+        { key: "drills", label: "Drills / Prehab", max: exercises.drills.length }
+      ];
+
+      for (const { key, label, max } of config) {
+        const n = values[key];
+        if (Number.isNaN(n) || n < 0 || n > max) {
+          return `${label} exercises must be between 0 and ${max}.`;
+        }
+      }
+      return "";
+    }
+
+    function validateTotal(total) {
+      if (Number.isNaN(total) || total <= 0) {
+        return "Total number of exercises must be at least 1.";
+      }
+      const maxTotal =
+        exercises.squat.length +
+        exercises.hinge.length +
+        exercises.unilateral.length +
+        exercises.plyo.length +
+        exercises.core.length +
+        exercises.drills.length;
+      if (total > maxTotal) {
+        return `Total exercises cannot exceed ${maxTotal} (the number of unique exercises available).`;
+      }
+      return "";
+    }
+
+    function generatePerCategoryWorkout() {
+      const squatCount = parseInt(document.getElementById("squatInput").value, 10) || 0;
+      const hingeCount = parseInt(document.getElementById("hingeInput").value, 10) || 0;
+      const unilateralCount = parseInt(document.getElementById("unilateralInput").value, 10) || 0;
+      const plyoCount = parseInt(document.getElementById("plyoInput").value, 10) || 0;
+      const coreCount = parseInt(document.getElementById("coreInput").value, 10) || 0;
+      const drillsCount = parseInt(document.getElementById("drillsInput").value, 10) || 0;
+
+      const values = { squat: squatCount, hinge: hingeCount, unilateral: unilateralCount, plyo: plyoCount, core: coreCount, drills: drillsCount };
+      const validationError = validatePerCategory(values);
+      if (validationError) {
+        return { error: validationError, data: null, counts: values, mode: "perCategory" };
+      }
+
+      const data = {
+        squat: getRandomSubset(exercises.squat, squatCount),
+        hinge: getRandomSubset(exercises.hinge, hingeCount),
+        unilateral: getRandomSubset(exercises.unilateral, unilateralCount),
+        plyo: getRandomSubset(exercises.plyo, plyoCount),
+        core: getRandomSubset(exercises.core, coreCount),
+        drills: getRandomSubset(exercises.drills, drillsCount)
+      };
+
+      return { error: "", data, counts: values, mode: "perCategory" };
+    }
+
+    function generateTotalWorkout() {
+      const total = parseInt(document.getElementById("totalInput").value, 10) || 0;
+      const validationError = validateTotal(total);
+      const emptyCounts = { squat: 0, hinge: 0, unilateral: 0, plyo: 0, core: 0, drills: 0 };
+
+      if (validationError) {
+        return { error: validationError, data: null, counts: emptyCounts, mode: "total", total };
+      }
+
+      const flatList = [];
+      for (const cat of Object.keys(exercises)) {
+        exercises[cat].forEach(ex => flatList.push({ ...ex, category: cat }));
+      }
+
+      const categories = ["squat", "hinge", "unilateral", "plyo", "core", "drills"];
+      const selected = [];
+      const usedNames = new Set();
+
+      const minRequired = Math.min(total, categories.length);
+      const shuffledCategories = [...categories].sort(() => Math.random() - 0.5);
+
+      for (let i = 0; i < minRequired; i++) {
+        const cat = shuffledCategories[i];
+        const options = exercises[cat];
+        if (!options || options.length === 0) continue;
+        const choice = getRandomSubset(options, 1)[0];
+        if (!usedNames.has(choice.name)) {
+          selected.push({ ...choice, category: cat });
+          usedNames.add(choice.name);
+        }
+      }
+
+      const remainingNeeded = total - selected.length;
+      if (remainingNeeded > 0) {
+        const remainingPool = flatList.filter(ex => !usedNames.has(ex.name));
+        for (let i = remainingPool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [remainingPool[i], remainingPool[j]] = [remainingPool[j], remainingPool[i]];
+        }
+        remainingPool.slice(0, remainingNeeded).forEach(ex => {
+          selected.push(ex);
+          usedNames.add(ex.name);
+        });
+      }
+
+      const data = { squat: [], hinge: [], unilateral: [], plyo: [], core: [], drills: [] };
+      const counts = { squat: 0, hinge: 0, unilateral: 0, plyo: 0, core: 0, drills: 0 };
+
+      selected.forEach(ex => {
+        data[ex.category].push({
+          name: ex.name,
+          sets: ex.sets,
+          reps: ex.reps,
+          note: ex.note,
+          tags: ex.tags
+        });
+        counts[ex.category]++;
+      });
+
+      return { error: "", data, counts, mode: "total", total };
+    }
+
+    function renderResults(resultObject) {
+      const { error, data, counts, mode } = resultObject;
+      const errorDiv = document.getElementById("error");
+      const resultsDiv = document.getElementById("results");
+      const summary = document.getElementById("sessionSummary");
+      const modeText = document.getElementById("modeText");
+
+      if (error) {
+        errorDiv.textContent = error;
+        errorDiv.style.display = "block";
+        resultsDiv.innerHTML = "";
+        summary.textContent = "Fix the inputs to generate a session.";
+        return;
+      } else {
+        errorDiv.textContent = "";
+        errorDiv.style.display = "none";
+      }
+
+      modeText.textContent = mode === "total" ? "Total-exercises" : "Per-category";
+      resultsDiv.innerHTML = "";
+
+      const totalExercises =
+        counts.squat + counts.hinge + counts.unilateral + counts.plyo + counts.core + counts.drills;
+
+      if (totalExercises === 0) {
+        summary.textContent = "No exercises selected yet – change an input and generate.";
+      } else {
+        if (mode === "perCategory") {
+          summary.textContent =
+            `${totalExercises} exercises selected • ` +
+            `Squat ${counts.squat}, Hinge ${counts.hinge}, Uni ${counts.unilateral}, ` +
+            `Plyo ${counts.plyo}, Core ${counts.core}, Drills ${counts.drills}`;
+        } else {
+          summary.textContent =
+            `${totalExercises} total exercises (auto-distributed) • ` +
+            `Squat ${counts.squat}, Hinge ${counts.hinge}, Uni ${counts.unilateral}, ` +
+            `Plyo ${counts.plyo}, Core ${counts.core}, Drills ${counts.drills}`;
+        }
+      }
+
+      const categoryLabels = {
+        squat: "Squat pattern",
+        hinge: "Hinge pattern",
+        unilateral: "Unilateral",
+        plyo: "Plyometric",
+        core: "Core",
+        drills: "Drills / Prehab"
+      };
+
+      function renderCategory(label, key, items) {
+        const block = document.createElement("div");
+        block.className = "category-block";
+
+        const header = document.createElement("div");
+        header.className = "category-header";
+
+        const name = document.createElement("div");
+        name.className = "category-name";
+        name.textContent = label;
+        header.appendChild(name);
+
+        const pill = document.createElement("div");
+        pill.className = "category-pill";
+        pill.textContent = items.length === 0
+          ? "0 selected"
+          : `${items.length} exercise${items.length > 1 ? "s" : ""}`;
+        header.appendChild(pill);
+
+        block.appendChild(header);
+
+        if (items.length === 0) {
+          const empty = document.createElement("div");
+          empty.className = "category-empty";
+          empty.textContent = "No exercises selected in this category.";
+          block.appendChild(empty);
+        } else {
+          const ul = document.createElement("ul");
+          ul.className = "exercise-list";
+
+          items.forEach(ex => {
+            const li = document.createElement("li");
+            li.className = "exercise-item";
+
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.className = "exercise-checkbox";
+            checkbox.addEventListener("change", () => {
+              li.classList.toggle("done", checkbox.checked);
+            });
+
+            const content = document.createElement("div");
+            content.className = "exercise-content";
+
+            const mainLineWrap = document.createElement("div");
+            mainLineWrap.className = "exercise-main-line";
+
+            const mainLine = document.createElement("span");
+            mainLine.className = "exercise-main";
+            mainLine.textContent = ex.name;
+
+            const tagsWrapper = document.createElement("span");
+            tagsWrapper.className = "exercise-tags";
+
+            if (ex.tags && ex.tags.length > 0) {
+              ex.tags.forEach(tagText => {
+                const tag = document.createElement("span");
+                tag.className = "exercise-tag";
+                tag.textContent = tagText;
+                if (tagTooltips[tagText]) {
+                  tag.setAttribute("data-tooltip", tagTooltips[tagText]);
+                }
+                tagsWrapper.appendChild(tag);
+              });
+            }
+
+            mainLineWrap.appendChild(mainLine);
+            mainLineWrap.appendChild(tagsWrapper);
+
+            const detail = document.createElement("span");
+            detail.className = "exercise-detail";
+            detail.textContent = `${ex.sets} sets × ${ex.reps}  •  ${ex.note}`;
+
+            content.appendChild(mainLineWrap);
+            content.appendChild(detail);
+
+            li.appendChild(checkbox);
+            li.appendChild(content);
+            ul.appendChild(li);
+          });
+
+          block.appendChild(ul);
+        }
+
+        resultsDiv.appendChild(block);
+      }
+
+      const order = getCategoryOrderFromSetup();
+      order.forEach(catKey => {
+        renderCategory(categoryLabels[catKey], catKey, data[catKey]);
+      });
+    }
+
+    function generateWorkout() {
+      const mode = lastChangedField === "total" ? "total" : "perCategory";
+      const result =
+        mode === "perCategory" ? generatePerCategoryWorkout() : generateTotalWorkout();
+      renderResults(result);
+      updateInputHighlight();
+      initTagTooltips();
+    }
+
+    function applyRunnerPreset() {
+      document.getElementById("totalInput").value = 7;
+      document.getElementById("squatInput").value = 1;
+      document.getElementById("hingeInput").value = 1;
+      document.getElementById("unilateralInput").value = 3;
+      document.getElementById("plyoInput").value = 1;
+      document.getElementById("coreInput").value = 1;
+      document.getElementById("drillsInput").value = 1;
+    }
+
+    function updateInputHighlight() {
+      const totalGroup = document.getElementById("totalGroup");
+      const perCategoryGroups = document.querySelectorAll(".per-category-group");
+
+      if (lastChangedField === "total") {
+        totalGroup.classList.remove("dimmed");
+        perCategoryGroups.forEach(g => g.classList.add("dimmed"));
+      } else {
+        totalGroup.classList.add("dimmed");
+        perCategoryGroups.forEach(g => g.classList.remove("dimmed"));
+      }
+    }
+
+    function copyWorkoutToClipboard() {
+      const resultsDiv = document.getElementById("results");
+      const categoryBlocks = resultsDiv.querySelectorAll(".category-block");
+      if (!categoryBlocks.length) return;
+
+      let text = "Runner Strength Session\n\n";
+
+      categoryBlocks.forEach(block => {
+        const title = block.querySelector(".category-name")?.textContent || "";
+        const items = block.querySelectorAll(".exercise-item");
+        if (!items.length) return;
+        text += title + ":\n";
+        items.forEach(item => {
+          const checkbox = item.querySelector(".exercise-checkbox");
+          const doneMark = checkbox && checkbox.checked ? "[x]" : "[ ]";
+          const name = item.querySelector(".exercise-main")?.textContent || "";
+          const detail = item.querySelector(".exercise-detail")?.textContent || "";
+          text += `  ${doneMark} ${name} — ${detail}\n`;
+        });
+        text += "\n";
+      });
+
+      navigator.clipboard.writeText(text).then(() => {
+        const copyBtn = document.getElementById("copyBtn");
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+        }, 1500);
+      }).catch(() => {
+        alert("Could not copy to clipboard in this browser.");
+      });
+    }
+
+    function initDragAndDrop() {
+      const container = document.getElementById("inputsColumn");
+      let dragSrcEl = null;
+
+      function handleDragStart(e) {
+        dragSrcEl = e.currentTarget;
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", dragSrcEl.id);
+      }
+
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        const target = e.currentTarget;
+        if (target === dragSrcEl) return;
+        target.classList.add("drag-over");
+      }
+
+      function handleDragLeave(e) {
+        e.currentTarget.classList.remove("drag-over");
+      }
+
+      function handleDrop(e) {
+        e.preventDefault();
+        const target = e.currentTarget;
+        target.classList.remove("drag-over");
+        if (dragSrcEl === target) return;
+
+        const groups = Array.from(container.querySelectorAll(".per-category-group"));
+        const dragIndex = groups.indexOf(dragSrcEl);
+        const dropIndex = groups.indexOf(target);
+
+        if (dragIndex < 0 || dropIndex < 0) return;
+
+        if (dragIndex < dropIndex) {
+          container.insertBefore(dragSrcEl, target.nextSibling);
+        } else {
+          container.insertBefore(dragSrcEl, target);
+        }
+      }
+
+      function handleDragEnd() {
+        const groups = container.querySelectorAll(".per-category-group");
+        groups.forEach(g => g.classList.remove("drag-over"));
+      }
+
+      const groups = container.querySelectorAll(".per-category-group");
+      groups.forEach(group => {
+        group.addEventListener("dragstart", handleDragStart);
+        group.addEventListener("dragover", handleDragOver);
+        group.addEventListener("dragleave", handleDragLeave);
+        group.addEventListener("drop", handleDrop);
+        group.addEventListener("dragend", handleDragEnd);
+      });
+    }
+
+    function initTagTooltips() {
+      const tags = document.querySelectorAll(".exercise-tag[data-tooltip]");
+
+      tags.forEach(tag => {
+        tag.addEventListener("mouseenter", () => {
+          const rect = tag.getBoundingClientRect();
+          const tooltipWidth = Math.min(380, window.innerWidth - 32); // padding from edges
+          const centerX = rect.left + rect.width / 2;
+          let tooltipLeft = centerX;
+          let tooltipTop = rect.top - 10; // a bit above the tag
+
+          const half = tooltipWidth / 2;
+          if (tooltipLeft - half < 16) tooltipLeft = half + 16;
+          if (tooltipLeft + half > window.innerWidth - 16)
+            tooltipLeft = window.innerWidth - 16 - half;
+
+          tag.style.setProperty("--tooltip-left", tooltipLeft + "px");
+          tag.style.setProperty("--tooltip-top", tooltipTop + "px");
+          tag.style.setProperty("--tooltip-width", tooltipWidth + "px");
+        });
+      });
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", generateWorkout);
+    document.getElementById("presetBtn").addEventListener("click", () => {
+      applyRunnerPreset();
+      generateWorkout();
+    });
+    document.getElementById("copyBtn").addEventListener("click", copyWorkoutToClipboard);
+
+    document.getElementById("totalInput").addEventListener("input", () => {
+      lastChangedField = "total";
+      updateInputHighlight();
+    });
+
+    ["squatInput", "hingeInput", "unilateralInput", "plyoInput", "coreInput", "drillsInput"].forEach(id => {
+      document.getElementById(id).addEventListener("input", () => {
+        lastChangedField = "category";
+        updateInputHighlight();
+      });
+    });
+
+    window.addEventListener("DOMContentLoaded", () => {
+      initDragAndDrop();
+      updateInputHighlight();
+      generateWorkout(); // this also calls initTagTooltips()
+    });
+  </script>
+</body>
+</html>
