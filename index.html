@@ -178,7 +178,6 @@
       grid-area: results;
     }
 
-    /* Layout: stacked (always 1 column) */
     body[data-layout="stacked"] .shell {
       grid-template-columns: 1fr;
       grid-template-areas:
@@ -263,7 +262,6 @@
       letter-spacing: 0.08em;
     }
 
-    /* Inputs layout: one column */
     .inputs-column {
       display: flex;
       flex-direction: column;
@@ -447,8 +445,6 @@
       box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.4);
     }
 
-    /* RESULTS */
-
     .results-header {
       display: flex;
       align-items: center;
@@ -619,7 +615,6 @@
       background: rgba(209, 250, 229, 0.7);
     }
 
-    /* Tooltip – absolute to avoid scroll offset issues */
     .exercise-tag[data-tooltip]::after {
       content: attr(data-tooltip);
       position: absolute;
@@ -675,7 +670,6 @@
       opacity: 1;
     }
 
-    /* Checkbox done style */
     .exercise-item.done .exercise-main,
     .exercise-item.done .exercise-detail {
       text-decoration: line-through;
@@ -702,6 +696,106 @@
 
     body[data-theme="light"] .legend strong {
       color: #111827;
+    }
+
+    /* Inline exercise list in setup */
+
+    .input-library-list {
+      margin: 6px 0 0;
+      padding-left: 0;
+      list-style: none;
+      /* always fully visible, no scroll */
+      max-height: none;
+      overflow-y: visible;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(31, 41, 55, 0.9);
+    }
+
+    body[data-theme="light"] .input-library-list {
+      background: #ffffff;
+      border-color: #e5e7eb;
+    }
+
+    .input-library-item {
+      font-size: 0.8rem;
+      padding: 4px 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .input-library-item:nth-child(odd) {
+      background: rgba(15, 23, 42, 0.3);
+    }
+
+    body[data-theme="light"] .input-library-item:nth-child(odd) {
+      background: #f9fafb;
+    }
+
+    .input-library-item:hover {
+      background: rgba(79, 209, 197, 0.16);
+      transform: translateY(-1px);
+    }
+
+    .input-library-name {
+      font-weight: 500;
+    }
+
+    .input-library-tags {
+      font-size: 0.7rem;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .inline-hover-detail {
+      margin-top: 4px;
+      padding: 6px 7px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      font-size: 0.76rem;
+    }
+
+    body[data-theme="light"] .inline-hover-detail {
+      background: #f9fafb;
+      border-color: #e5e7eb;
+    }
+
+    .inline-hover-title {
+      font-weight: 600;
+      margin-bottom: 1px;
+    }
+
+    .inline-hover-meta {
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .inline-hover-note {
+      color: var(--text-main);
+    }
+
+    /* Remove button in workout list */
+
+    .exercise-remove {
+      margin-left: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 0 4px;
+      border-radius: 999px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .exercise-remove:hover {
+      background: rgba(248, 113, 113, 0.14);
+      color: var(--danger);
     }
   </style>
 </head>
@@ -768,9 +862,8 @@
             >
               <label for="drillsInput">Drills / Prehab</label>
               <input id="drillsInput" type="number" min="0" max="4" value="2">
-              <div class="hint">
-                Options: <span>heel walks, calf walks, theraband routine (ankles)</span>
-              </div>
+              <ul class="input-library-list" data-category-library="drills"></ul>
+              <div class="inline-hover-detail" data-hover-detail="drills" style="display:none;"></div>
             </div>
 
             <div
@@ -781,9 +874,8 @@
             >
               <label for="squatInput">Squat</label>
               <input id="squatInput" type="number" min="0" max="1" value="1">
-              <div class="hint">
-                Options: <span>goblet squat</span>
-              </div>
+              <ul class="input-library-list" data-category-library="squat"></ul>
+              <div class="inline-hover-detail" data-hover-detail="squat" style="display:none;"></div>
             </div>
 
             <div
@@ -794,9 +886,8 @@
             >
               <label for="hingeInput">Hinge</label>
               <input id="hingeInput" type="number" min="0" max="5" value="2">
-              <div class="hint">
-                Options: <span>hamstring walkouts, glute bridge, hip thrusts, hip raises, clamshells</span>
-              </div>
+              <ul class="input-library-list" data-category-library="hinge"></ul>
+              <div class="inline-hover-detail" data-hover-detail="hinge" style="display:none;"></div>
             </div>
 
             <div
@@ -807,9 +898,8 @@
             >
               <label for="unilateralInput">Unilateral</label>
               <input id="unilateralInput" type="number" min="0" max="11" value="3">
-              <div class="hint">
-                Options: <span>step-ups, single leg romanian deadlift, lunge with weights, lunge circuit, lunge with hinge, lunge to hip drive, hip lock knee drive, single leg glute bridge (heightened), single leg calf raises</span>
-              </div>
+              <ul class="input-library-list" data-category-library="unilateral"></ul>
+              <div class="inline-hover-detail" data-hover-detail="unilateral" style="display:none;"></div>
             </div>
 
             <div
@@ -820,9 +910,8 @@
             >
               <label for="plyoInput">Plyometric</label>
               <input id="plyoInput" type="number" min="0" max="3" value="1">
-              <div class="hint">
-                Options: <span>pogos double leg, pogos single leg, skipping, line hops</span>
-              </div>
+              <ul class="input-library-list" data-category-library="plyo"></ul>
+              <div class="inline-hover-detail" data-hover-detail="plyo" style="display:none;"></div>
             </div>
 
             <div
@@ -833,9 +922,8 @@
             >
               <label for="coreInput">Core</label>
               <input id="coreInput" type="number" min="0" max="3" value="1">
-              <div class="hint">
-                Options: <span>dead bug, bird dog pose, knee push opposite arm, side plank, plank</span>
-              </div>
+              <ul class="input-library-list" data-category-library="core"></ul>
+              <div class="inline-hover-detail" data-hover-detail="core" style="display:none;"></div>
             </div>
           </div>
 
@@ -1108,6 +1196,16 @@
       ]
     };
 
+    // Global current workout state
+    let currentWorkout = {
+      squat: [],
+      hinge: [],
+      unilateral: [],
+      plyo: [],
+      core: [],
+      drills: []
+    };
+
     function getRandomSubset(arr, count) {
       const copy = [...arr];
       for (let i = copy.length - 1; i > 0; i--) {
@@ -1174,7 +1272,7 @@
       const values = { squat: squatCount, hinge: hingeCount, unilateral: unilateralCount, plyo: plyoCount, core: coreCount, drills: drillsCount };
       const validationError = validatePerCategory(values);
       if (validationError) {
-        return { error: validationError, data: null, counts: values, mode: "perCategory" };
+        return { error: validationError, data: null, counts: values, mode: "PerCategory" };
       }
 
       const data = {
@@ -1269,6 +1367,9 @@
         errorDiv.style.display = "none";
       }
 
+      // Sync global state
+      currentWorkout = data;
+
       modeText.textContent = mode === "total" ? "Total-exercises" : "Per-category";
       resultsDiv.innerHTML = "";
 
@@ -1324,7 +1425,7 @@
           const ul = document.createElement("ul");
           ul.className = "exercise-list";
 
-          items.forEach(ex => {
+          items.forEach((ex, index) => {
             const li = document.createElement("li");
             li.className = "exercise-item";
 
@@ -1360,8 +1461,18 @@
               });
             }
 
+            const removeBtn = document.createElement("button");
+            removeBtn.className = "exercise-remove";
+            removeBtn.type = "button";
+            removeBtn.textContent = "×";
+            removeBtn.title = "Remove from workout";
+            removeBtn.addEventListener("click", () => {
+              removeExerciseFromWorkout(key, index);
+            });
+
             mainLineWrap.appendChild(mainLine);
             mainLineWrap.appendChild(tagsWrapper);
+            mainLineWrap.appendChild(removeBtn);
 
             const detail = document.createElement("span");
             detail.className = "exercise-detail";
@@ -1384,6 +1495,122 @@
       const order = getCategoryOrderFromSetup();
       order.forEach(catKey => {
         renderCategory(categoryLabels[catKey], catKey, data[catKey]);
+      });
+    }
+
+    function removeExerciseFromWorkout(categoryKey, index) {
+      if (!currentWorkout[categoryKey]) return;
+      currentWorkout[categoryKey].splice(index, 1);
+
+      const counts = {
+        squat: currentWorkout.squat.length,
+        hinge: currentWorkout.hinge.length,
+        unilateral: currentWorkout.unilateral.length,
+        plyo: currentWorkout.plyo.length,
+        core: currentWorkout.core.length,
+        drills: currentWorkout.drills.length
+      };
+
+      renderResults({
+        error: "",
+        data: currentWorkout,
+        counts,
+        mode: lastChangedField === "total" ? "total" : "perCategory"
+      });
+    }
+
+    function addExerciseToWorkout(categoryKey, exerciseObj) {
+      if (!currentWorkout[categoryKey]) {
+        currentWorkout[categoryKey] = [];
+      }
+      const alreadyExists = currentWorkout[categoryKey].some(ex => ex.name === exerciseObj.name);
+      if (alreadyExists) return;
+
+      currentWorkout[categoryKey].push({
+        name: exerciseObj.name,
+        sets: exerciseObj.sets,
+        reps: exerciseObj.reps,
+        note: exerciseObj.note,
+        tags: exerciseObj.tags
+      });
+
+      const counts = {
+        squat: currentWorkout.squat.length,
+        hinge: currentWorkout.hinge.length,
+        unilateral: currentWorkout.unilateral.length,
+        plyo: currentWorkout.plyo.length,
+        core: currentWorkout.core.length,
+        drills: currentWorkout.drills.length
+      };
+
+      renderResults({
+        error: "",
+        data: currentWorkout,
+        counts,
+        mode: lastChangedField === "total" ? "total" : "perCategory"
+      });
+    }
+
+    // Render library items inside each category card
+    function renderInlineLibraries() {
+      const categories = ["squat", "hinge", "unilateral", "plyo", "core", "drills"];
+      categories.forEach(catKey => {
+        const ul = document.querySelector(`.input-library-list[data-category-library="${catKey}"]`);
+        const hoverBox = document.querySelector(`.inline-hover-detail[data-hover-detail="${catKey}"]`);
+        if (!ul || !hoverBox) return;
+
+        ul.innerHTML = "";
+        const catExercises = exercises[catKey] || [];
+        catExercises.forEach(ex => {
+          const li = document.createElement("li");
+          li.className = "input-library-item";
+
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "input-library-name";
+          nameSpan.textContent = ex.name;
+
+          const tagsSpan = document.createElement("span");
+          tagsSpan.className = "input-library-tags";
+          tagsSpan.textContent = ex.tags && ex.tags.length ? ex.tags.join(", ") : "";
+
+          li.appendChild(nameSpan);
+          li.appendChild(tagsSpan);
+
+          // Hover: show details in inline box
+          li.addEventListener("mouseenter", () => {
+            hoverBox.style.display = "block";
+            hoverBox.innerHTML = "";
+
+            const titleEl = document.createElement("div");
+            titleEl.className = "inline-hover-title";
+            titleEl.textContent = ex.name;
+
+            const metaEl = document.createElement("div");
+            metaEl.className = "inline-hover-meta";
+            metaEl.textContent = `${ex.sets} sets × ${ex.reps}` +
+              (ex.tags && ex.tags.length ? ` • ${ex.tags.join(", ")}` : "");
+
+            const noteEl = document.createElement("div");
+            noteEl.className = "inline-hover-note";
+            noteEl.textContent = ex.note;
+
+            hoverBox.appendChild(titleEl);
+            hoverBox.appendChild(metaEl);
+            hoverBox.appendChild(noteEl);
+          });
+
+          li.addEventListener("mouseleave", () => {
+            // keep last preview; comment next line if you want it hidden on leave
+            // hoverBox.style.display = "none";
+          });
+
+          // Click: add to workout
+          li.addEventListener("click", () => {
+            addExerciseToWorkout(catKey, ex);
+          });
+
+          ul.appendChild(li);
+        });
       });
     }
 
@@ -1590,6 +1817,7 @@
       initLayoutToggle();
       initDragAndDrop();
       updateInputHighlight();
+      renderInlineLibraries();
       generateWorkout();
     });
   </script>
