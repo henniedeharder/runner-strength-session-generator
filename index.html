@@ -795,7 +795,7 @@
               <label for="hingeInput">Hinge</label>
               <input id="hingeInput" type="number" min="0" max="5" value="2">
               <div class="hint">
-                Options: <span>romanian deadlift, glute bridge, hip thrusts, hip raises, clamshells</span>
+                Options: <span>hamstring walkouts, glute bridge, hip thrusts, hip raises, clamshells</span>
               </div>
             </div>
 
@@ -808,7 +808,7 @@
               <label for="unilateralInput">Unilateral</label>
               <input id="unilateralInput" type="number" min="0" max="11" value="3">
               <div class="hint">
-                Options: <span>step-ups, single leg deadlift, lunge circuit, lunge with hinge, lunge to hip drive, hip lock knee drive, single leg glute bridge (heightened), single leg calf raises</span>
+                Options: <span>step-ups, single leg romanian deadlift, lunge with weights, lunge circuit, lunge with hinge, lunge to hip drive, hip lock knee drive, single leg glute bridge (heightened), single leg calf raises</span>
               </div>
             </div>
 
@@ -821,7 +821,7 @@
               <label for="plyoInput">Plyometric</label>
               <input id="plyoInput" type="number" min="0" max="3" value="1">
               <div class="hint">
-                Options: <span>pogos, skipping, line hops</span>
+                Options: <span>pogos double leg, pogos single leg, skipping, line hops</span>
               </div>
             </div>
 
@@ -834,7 +834,7 @@
               <label for="coreInput">Core</label>
               <input id="coreInput" type="number" min="0" max="3" value="1">
               <div class="hint">
-                Options: <span>dead bug, side plank, plank</span>
+                Options: <span>dead bug, bird dog pose, knee push opposite arm, side plank, plank</span>
               </div>
             </div>
           </div>
@@ -916,10 +916,10 @@
       ],
       hinge: [
         {
-          name: "romanian deadlift",
+          name: "hamstring walkouts",
           sets: "3–4",
           reps: "6–8",
-          note: "Hamstring and glute focus; maintain flat back.",
+          note: "Hamstring and glute focus; maintain flat back, slowly extend legs.",
           tags: ["Strength"]
         },
         {
@@ -939,8 +939,8 @@
         {
           name: "hip raises",
           sets: "2–3",
-          reps: "10–12",
-          note: "Smooth lift and lower; focus on glute activation.",
+          reps: "10–12 / side",
+          note: "Stand on one leg. Smooth lift and lower; focus on glute activation.",
           tags: ["Assistance"]
         },
         {
@@ -960,24 +960,31 @@
           tags: ["Stability"]
         },
         {
-          name: "single leg deadlift",
+          name: "single leg romanian deadlift",
           sets: "3",
           reps: "6–8 / leg",
           note: "Balance + posterior chain; move slowly.",
           tags: ["Stability", "Strength"]
         },
         {
+          name: "lunge with weights",
+          sets: "2–3",
+          reps: "8–10 / leg",
+          note: "Maintain upright torso; control descent.",
+          tags: ["Stability", "Drill"]
+        },
+        {
           name: "lunge circuit",
           sets: "2–3",
           reps: "4–6 reps of each lunge variation",
-          note: "Mix forward, reverse, and lateral lunges for control.",
+          note: "Use one weight, move down and up, walk. Add turns to side.",
           tags: ["Stability", "Drill"]
         },
         {
           name: "lunge with hinge",
           sets: "2–3",
           reps: "6–8 / leg",
-          note: "Control the forward lean; feel hamstrings and glutes.",
+          note: "Knee on ground. Move hand of back leg down to the ground. Other hand holds weight above head.",
           tags: ["Stability", "Hinge"]
         },
         {
@@ -1011,9 +1018,16 @@
       ],
       plyo: [
         {
-          name: "pogos",
+          name: "pogos double leg",
           sets: "2–3",
           reps: "15–20 contacts",
+          note: "Quick, light contacts; think “springy”.",
+          tags: ["Power"]
+        },
+        {
+          name: "pogos single leg",
+          sets: "2–3",
+          reps: "10–12 contacts / leg",
           note: "Quick, light contacts; think “springy”.",
           tags: ["Power"]
         },
@@ -1038,6 +1052,20 @@
           sets: "2–3",
           reps: "8–10 / side",
           note: "Slow, controlled, low back stays on floor.",
+          tags: ["Core"]
+        },
+        {
+          name: "bird dog pose",
+          sets: "2–3",
+          reps: "8–10 / side",
+          note: "Extend opposite arm and leg; keep hips level.",
+          tags: ["Core"]
+        },
+        {
+          name: "knee push opposite arm",
+          sets: "2–3",
+          reps: "8–10 / side",
+          note: "Push knee and opposite arm against each other; other leg is extended.",
           tags: ["Core"]
         },
         {
