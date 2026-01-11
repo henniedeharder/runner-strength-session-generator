@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <!-- Make it usable on phones -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Runner Strength Training Generator</title>
   <style>
     :root {
@@ -46,6 +48,7 @@
       align-items: stretch;
       justify-content: center;
       transition: background 0.25s ease, color 0.25s ease;
+      font-size: 16px;
     }
 
     body[data-theme="light"] {
@@ -192,13 +195,34 @@
           "setup"
           "results";
       }
+
       .page {
         padding: 18px 12px;
       }
+
       .header-controls {
         position: static;
         margin-top: 10px;
         align-items: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        font-size: 14px;
+      }
+
+      .title {
+        font-size: 1.5rem;
+      }
+
+      .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+
+      .card {
+        padding: 14px 12px 16px;
       }
     }
 
@@ -288,6 +312,21 @@
       border-color: rgba(79, 209, 197, 0.6);
       box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.2);
       transform: translateY(-1px);
+    }
+
+    .input-group-header {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .input-toggle {
+      border: none;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      padding: 0 4px 0 0;
+      font-size: 0.8rem;
     }
 
     label {
@@ -445,12 +484,19 @@
       box-shadow: 0 0 0 1px rgba(79, 209, 197, 0.4);
     }
 
+    /* Collapse behavior for exercise library in setup */
+    .input-group.collapsed .input-library-list,
+    .input-group.collapsed .inline-hover-detail {
+      display: none;
+    }
+
     .results-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
       margin-bottom: 4px;
+      flex-wrap: wrap;
     }
 
     .results-header h2 {
@@ -507,7 +553,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+      gap: 6px;
     }
 
     .category-name {
@@ -528,6 +575,7 @@
       border-radius: 999px;
       background: rgba(148, 163, 184, 0.12);
       color: var(--text-muted);
+      white-space: nowrap;
     }
 
     .category-empty {
@@ -539,7 +587,7 @@
 
     .exercise-list {
       margin: 0;
-      padding-left: 18px;
+      padding-left: 0;
       list-style: none;
     }
 
@@ -704,7 +752,6 @@
       margin: 6px 0 0;
       padding-left: 0;
       list-style: none;
-      /* always fully visible, no scroll */
       max-height: none;
       overflow-y: visible;
       border-radius: 6px;
@@ -779,8 +826,6 @@
       color: var(--text-main);
     }
 
-    /* Remove button in workout list */
-
     .exercise-remove {
       margin-left: 6px;
       border: none;
@@ -799,7 +844,7 @@
     }
   </style>
 </head>
-<body data-theme="dark" data-layout="wide">
+<body data-theme="dark">
   <div class="page">
     <header class="header">
       <h1 class="title">
@@ -808,21 +853,21 @@
       <div class="header-controls">
         <label class="theme-toggle">
           <span id="themeLabel">Dark</span>
-          <input type="checkbox" id="themeToggle">
+          <input type="checkbox" id="themeToggle" />
           <div class="theme-switch">
             <div class="theme-knob"></div>
           </div>
         </label>
         <label class="layout-toggle">
           <div class="layout-pill">
-            Layout: <span id="layoutLabel">Wide</span>
+            Layout: <span id="layoutLabel">Stacked</span>
           </div>
-          <input type="checkbox" id="layoutToggle">
+          <input type="checkbox" id="layoutToggle" />
         </label>
       </div>
       <p class="subtitle">
         Change either the total exercises or the per-category numbers. The last field you edit decides how the workout is built.
-        <br> Drag categories in the setup to customize their order.
+        <br />Drag categories in the setup to customize their order.
       </p>
     </header>
 
@@ -837,8 +882,9 @@
 
           <p class="tip">
             <strong>How it works:</strong> If your most recent change is the <strong>total exercises</strong>, we’ll
-            auto-distribute across categories. If your last change is any <strong>per-category</strong> field,
-            we’ll use exactly those numbers. You can also drag the category cards below to reorder how they appear.
+            auto-distribute across categories (aiming for at least one per category if possible). If your last change is any
+            <strong>per-category</strong> field, we’ll use exactly those numbers. You can also drag the category cards below
+            to reorder how they appear.
           </p>
 
           <div id="error" class="error"></div>
@@ -847,81 +893,114 @@
             <!-- Total exercises input -->
             <div class="input-group" id="totalGroup">
               <label for="totalInput">Total number of exercises (all categories)</label>
-              <input id="totalInput" type="number" min="1" max="21" value="10">
+              <input id="totalInput" type="number" min="1" max="27" value="10" />
               <div class="hint">
                 We’ll pick at least one per category (if possible), then fill randomly up to this total.
               </div>
             </div>
 
-            <!-- Per category inputs (draggable) -->
+            <!-- Per category inputs (draggable) with collapsible libraries -->
             <div
-              class="input-group per-category-group"
+              class="input-group per-category-group collapsed"
               id="drillsGroup"
               data-category="drills"
               draggable="true"
             >
-              <label for="drillsInput">Drills / Prehab</label>
-              <input id="drillsInput" type="number" min="0" max="4" value="2">
+              <div class="input-group-header">
+                <button class="input-toggle" type="button">▶</button>
+                <label for="drillsInput">Drills / Prehab</label>
+              </div>
+              <input id="drillsInput" type="number" min="0" max="3" value="2" />
               <ul class="input-library-list" data-category-library="drills"></ul>
               <div class="inline-hover-detail" data-hover-detail="drills" style="display:none;"></div>
             </div>
 
             <div
-              class="input-group per-category-group"
-              id="squatGroup"
-              data-category="squat"
-              draggable="true"
-            >
-              <label for="squatInput">Squat</label>
-              <input id="squatInput" type="number" min="0" max="1" value="1">
-              <ul class="input-library-list" data-category-library="squat"></ul>
-              <div class="inline-hover-detail" data-hover-detail="squat" style="display:none;"></div>
-            </div>
-
-            <div
-              class="input-group per-category-group"
-              id="hingeGroup"
-              data-category="hinge"
-              draggable="true"
-            >
-              <label for="hingeInput">Hinge</label>
-              <input id="hingeInput" type="number" min="0" max="5" value="2">
-              <ul class="input-library-list" data-category-library="hinge"></ul>
-              <div class="inline-hover-detail" data-hover-detail="hinge" style="display:none;"></div>
-            </div>
-
-            <div
-              class="input-group per-category-group"
-              id="unilateralGroup"
-              data-category="unilateral"
-              draggable="true"
-            >
-              <label for="unilateralInput">Unilateral</label>
-              <input id="unilateralInput" type="number" min="0" max="11" value="3">
-              <ul class="input-library-list" data-category-library="unilateral"></ul>
-              <div class="inline-hover-detail" data-hover-detail="unilateral" style="display:none;"></div>
-            </div>
-
-            <div
-              class="input-group per-category-group"
+              class="input-group per-category-group collapsed"
               id="plyoGroup"
               data-category="plyo"
               draggable="true"
             >
-              <label for="plyoInput">Plyometric</label>
-              <input id="plyoInput" type="number" min="0" max="3" value="1">
+              <div class="input-group-header">
+                <button class="input-toggle" type="button">▶</button>
+                <label for="plyoInput">Plyometric</label>
+              </div>
+              <input id="plyoInput" type="number" min="0" max="4" value="1" />
               <ul class="input-library-list" data-category-library="plyo"></ul>
               <div class="inline-hover-detail" data-hover-detail="plyo" style="display:none;"></div>
             </div>
 
             <div
-              class="input-group per-category-group"
+              class="input-group per-category-group collapsed"
+              id="squatGroup"
+              data-category="squat"
+              draggable="true"
+            >
+              <div class="input-group-header">
+                <button class="input-toggle" type="button">▶</button>
+                <label for="squatInput">Squat</label>
+              </div>
+              <input id="squatInput" type="number" min="0" max="1" value="1" />
+              <ul class="input-library-list" data-category-library="squat"></ul>
+              <div class="inline-hover-detail" data-hover-detail="squat" style="display:none;"></div>
+            </div>
+
+            <div
+              class="input-group per-category-group collapsed"
+              id="hingeGroup"
+              data-category="hinge"
+              draggable="true"
+            >
+              <div class="input-group-header">
+                <button class="input-toggle" type="button">▶</button>
+                <label for="hingeInput">Hinge</label>
+              </div>
+              <input id="hingeInput" type="number" min="0" max="5" value="2" />
+              <ul class="input-library-list" data-category-library="hinge"></ul>
+              <div class="inline-hover-detail" data-hover-detail="hinge" style="display:none;"></div>
+            </div>
+
+            <div
+              class="input-group per-category-group collapsed"
+              id="lungeGroup"
+              data-category="lunge"
+              draggable="true"
+            >
+              <div class="input-group-header">
+                <button class="input-toggle" type="button">▶</button>
+                <label for="lungeInput">Lunge</label>
+              </div>
+              <input id="lungeInput" type="number" min="0" max="4" value="1" />
+              <ul class="input-library-list" data-category-library="lunge"></ul>
+              <div class="inline-hover-detail" data-hover-detail="lunge" style="display:none;"></div>
+            </div>
+
+            <div
+              class="input-group per-category-group collapsed"
+              id="unilateralGroup"
+              data-category="unilateral"
+              draggable="true"
+            >
+              <div class="input-group-header">
+                <button class="input-toggle" type="button">▶</button>
+                <label for="unilateralInput">Unilateral</label>
+              </div>
+              <input id="unilateralInput" type="number" min="0" max="5" value="2" />
+              <ul class="input-library-list" data-category-library="unilateral"></ul>
+              <div class="inline-hover-detail" data-hover-detail="unilateral" style="display:none;"></div>
+            </div>
+
+            <div
+              class="input-group per-category-group collapsed"
               id="coreGroup"
               data-category="core"
               draggable="true"
             >
-              <label for="coreInput">Core</label>
-              <input id="coreInput" type="number" min="0" max="3" value="1">
+              <div class="input-group-header">
+                <button class="input-toggle" type="button">▶</button>
+                <label for="coreInput">Core</label>
+              </div>
+              <input id="coreInput" type="number" min="0" max="5" value="1" />
               <ul class="input-library-list" data-category-library="core"></ul>
               <div class="inline-hover-detail" data-hover-detail="core" style="display:none;"></div>
             </div>
@@ -953,13 +1032,16 @@
                 <span class="btn-icon">📋</span>
                 Copy workout
               </button>
+              <button id="clearBtn" class="btn btn-small btn-secondary" type="button">
+                ✖ Clear all
+              </button>
             </div>
           </div>
           <div class="results-summary-line" id="resultsSummaryLine">
-            <!-- Filled by JS -->
+            No exercises selected yet – change an input and generate.
           </div>
           <div class="results-meta">
-            Focus: <span>running performance, stability, durability, and prehab</span>.  
+            Focus: <span>running performance, stability, durability, and prehab</span>.
             Perform this session 1–3× per week, away from your hardest run days.
           </div>
 
@@ -1039,21 +1121,8 @@
           tags: ["Prehab", "Stability", "Hinge"]
         }
       ],
-      unilateral: [
-        {
-          name: "step-ups",
-          sets: "3",
-          reps: "8–10 / leg",
-          note: "Slow lower, control knee alignment.",
-          tags: ["Stability"]
-        },
-        {
-          name: "single leg romanian deadlift",
-          sets: "3",
-          reps: "6–8 / leg",
-          note: "Balance + posterior chain; move slowly.",
-          tags: ["Stability", "Strength"]
-        },
+      // New Lunge category with four lunge exercises
+      lunge: [
         {
           name: "lunge with weights",
           sets: "2–3",
@@ -1081,6 +1150,22 @@
           reps: "6–8 / leg",
           note: "Drive the knee up powerfully out of the lunge.",
           tags: ["Power", "Drill"]
+        }
+      ],
+      unilateral: [
+        {
+          name: "step-ups",
+          sets: "3",
+          reps: "8–10 / leg",
+          note: "Slow lower, control knee alignment.",
+          tags: ["Stability"]
+        },
+        {
+          name: "single leg romanian deadlift",
+          sets: "3",
+          reps: "6–8 / leg",
+          note: "Balance + posterior chain; move slowly.",
+          tags: ["Stability", "Strength"]
         },
         {
           name: "hip lock knee drive",
@@ -1200,6 +1285,7 @@
     let currentWorkout = {
       squat: [],
       hinge: [],
+      lunge: [],
       unilateral: [],
       plyo: [],
       core: [],
@@ -1229,6 +1315,7 @@
       const config = [
         { key: "squat", label: "Squat", max: exercises.squat.length },
         { key: "hinge", label: "Hinge", max: exercises.hinge.length },
+        { key: "lunge", label: "Lunge", max: exercises.lunge.length },
         { key: "unilateral", label: "Unilateral", max: exercises.unilateral.length },
         { key: "plyo", label: "Plyometric", max: exercises.plyo.length },
         { key: "core", label: "Core", max: exercises.core.length },
@@ -1251,6 +1338,7 @@
       const maxTotal =
         exercises.squat.length +
         exercises.hinge.length +
+        exercises.lunge.length +
         exercises.unilateral.length +
         exercises.plyo.length +
         exercises.core.length +
@@ -1264,12 +1352,21 @@
     function generatePerCategoryWorkout() {
       const squatCount = parseInt(document.getElementById("squatInput").value, 10) || 0;
       const hingeCount = parseInt(document.getElementById("hingeInput").value, 10) || 0;
+      const lungeCount = parseInt(document.getElementById("lungeInput").value, 10) || 0;
       const unilateralCount = parseInt(document.getElementById("unilateralInput").value, 10) || 0;
       const plyoCount = parseInt(document.getElementById("plyoInput").value, 10) || 0;
       const coreCount = parseInt(document.getElementById("coreInput").value, 10) || 0;
       const drillsCount = parseInt(document.getElementById("drillsInput").value, 10) || 0;
 
-      const values = { squat: squatCount, hinge: hingeCount, unilateral: unilateralCount, plyo: plyoCount, core: coreCount, drills: drillsCount };
+      const values = {
+        squat: squatCount,
+        hinge: hingeCount,
+        lunge: lungeCount,
+        unilateral: unilateralCount,
+        plyo: plyoCount,
+        core: coreCount,
+        drills: drillsCount
+      };
       const validationError = validatePerCategory(values);
       if (validationError) {
         return { error: validationError, data: null, counts: values, mode: "PerCategory" };
@@ -1278,6 +1375,7 @@
       const data = {
         squat: getRandomSubset(exercises.squat, squatCount),
         hinge: getRandomSubset(exercises.hinge, hingeCount),
+        lunge: getRandomSubset(exercises.lunge, lungeCount),
         unilateral: getRandomSubset(exercises.unilateral, unilateralCount),
         plyo: getRandomSubset(exercises.plyo, plyoCount),
         core: getRandomSubset(exercises.core, coreCount),
@@ -1290,7 +1388,15 @@
     function generateTotalWorkout() {
       const total = parseInt(document.getElementById("totalInput").value, 10) || 0;
       const validationError = validateTotal(total);
-      const emptyCounts = { squat: 0, hinge: 0, unilateral: 0, plyo: 0, core: 0, drills: 0 };
+      const emptyCounts = {
+        squat: 0,
+        hinge: 0,
+        lunge: 0,
+        unilateral: 0,
+        plyo: 0,
+        core: 0,
+        drills: 0
+      };
 
       if (validationError) {
         return { error: validationError, data: null, counts: emptyCounts, mode: "total", total };
@@ -1301,7 +1407,7 @@
         exercises[cat].forEach(ex => flatList.push({ ...ex, category: cat }));
       }
 
-      const categories = ["squat", "hinge", "unilateral", "plyo", "core", "drills"];
+      const categories = ["squat", "hinge", "lunge", "unilateral", "plyo", "core", "drills"];
       const selected = [];
       const usedNames = new Set();
 
@@ -1332,8 +1438,24 @@
         });
       }
 
-      const data = { squat: [], hinge: [], unilateral: [], plyo: [], core: [], drills: [] };
-      const counts = { squat: 0, hinge: 0, unilateral: 0, plyo: 0, core: 0, drills: 0 };
+      const data = {
+        squat: [],
+        hinge: [],
+        lunge: [],
+        unilateral: [],
+        plyo: [],
+        core: [],
+        drills: []
+      };
+      const counts = {
+        squat: 0,
+        hinge: 0,
+        lunge: 0,
+        unilateral: 0,
+        plyo: 0,
+        core: 0,
+        drills: 0
+      };
 
       selected.forEach(ex => {
         data[ex.category].push({
@@ -1347,6 +1469,18 @@
       });
 
       return { error: "", data, counts, mode: "total", total };
+    }
+
+    function updateCountsFromCurrent() {
+      return {
+        squat: currentWorkout.squat.length,
+        hinge: currentWorkout.hinge.length,
+        lunge: currentWorkout.lunge.length,
+        unilateral: currentWorkout.unilateral.length,
+        plyo: currentWorkout.plyo.length,
+        core: currentWorkout.core.length,
+        drills: currentWorkout.drills.length
+      };
     }
 
     function renderResults(resultObject) {
@@ -1374,21 +1508,28 @@
       resultsDiv.innerHTML = "";
 
       const totalExercises =
-        counts.squat + counts.hinge + counts.unilateral + counts.plyo + counts.core + counts.drills;
+        counts.squat +
+        counts.hinge +
+        counts.lunge +
+        counts.unilateral +
+        counts.plyo +
+        counts.core +
+        counts.drills;
 
       if (totalExercises === 0) {
         summaryLine.textContent = "No exercises selected yet – change an input and generate.";
       } else {
         const baseSummary =
           `${totalExercises} exercises selected • ` +
-          `Squat ${counts.squat}, Hinge ${counts.hinge}, Uni ${counts.unilateral}, ` +
-          `Plyo ${counts.plyo}, Core ${counts.core}, Drills ${counts.drills}`;
+          `Squat ${counts.squat}, Hinge ${counts.hinge}, Lunge ${counts.lunge}, ` +
+          `Uni ${counts.unilateral}, Plyo ${counts.plyo}, Core ${counts.core}, Drills ${counts.drills}`;
         summaryLine.textContent = baseSummary;
       }
 
       const categoryLabels = {
         squat: "Squat pattern",
         hinge: "Hinge pattern",
+        lunge: "Lunge pattern",
         unilateral: "Unilateral",
         plyo: "Plyometric",
         core: "Core",
@@ -1405,15 +1546,15 @@
         const name = document.createElement("div");
         name.className = "category-name";
         name.textContent = label;
-        header.appendChild(name);
 
         const pill = document.createElement("div");
         pill.className = "category-pill";
         pill.textContent = items.length === 0
           ? "0 selected"
           : `${items.length} exercise${items.length > 1 ? "s" : ""}`;
-        header.appendChild(pill);
 
+        header.appendChild(name);
+        header.appendChild(pill);
         block.appendChild(header);
 
         if (items.length === 0) {
@@ -1502,14 +1643,7 @@
       if (!currentWorkout[categoryKey]) return;
       currentWorkout[categoryKey].splice(index, 1);
 
-      const counts = {
-        squat: currentWorkout.squat.length,
-        hinge: currentWorkout.hinge.length,
-        unilateral: currentWorkout.unilateral.length,
-        plyo: currentWorkout.plyo.length,
-        core: currentWorkout.core.length,
-        drills: currentWorkout.drills.length
-      };
+      const counts = updateCountsFromCurrent();
 
       renderResults({
         error: "",
@@ -1534,14 +1668,7 @@
         tags: exerciseObj.tags
       });
 
-      const counts = {
-        squat: currentWorkout.squat.length,
-        hinge: currentWorkout.hinge.length,
-        unilateral: currentWorkout.unilateral.length,
-        plyo: currentWorkout.plyo.length,
-        core: currentWorkout.core.length,
-        drills: currentWorkout.drills.length
-      };
+      const counts = updateCountsFromCurrent();
 
       renderResults({
         error: "",
@@ -1551,9 +1678,8 @@
       });
     }
 
-    // Render library items inside each category card
     function renderInlineLibraries() {
-      const categories = ["squat", "hinge", "unilateral", "plyo", "core", "drills"];
+      const categories = ["squat", "hinge", "lunge", "unilateral", "plyo", "core", "drills"];
       categories.forEach(catKey => {
         const ul = document.querySelector(`.input-library-list[data-category-library="${catKey}"]`);
         const hoverBox = document.querySelector(`.inline-hover-detail[data-hover-detail="${catKey}"]`);
@@ -1576,41 +1702,81 @@
           li.appendChild(nameSpan);
           li.appendChild(tagsSpan);
 
-          // Hover: show details in inline box
-          li.addEventListener("mouseenter", () => {
-            hoverBox.style.display = "block";
-            hoverBox.innerHTML = "";
+          // Only enable hover previews on devices that actually support hover
+          const allowHoverPreview =
+            window.matchMedia &&
+            window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-            const titleEl = document.createElement("div");
-            titleEl.className = "inline-hover-title";
-            titleEl.textContent = ex.name;
+          if (allowHoverPreview) {
+            li.addEventListener("mouseenter", () => {
+              hoverBox.style.display = "block";
+              hoverBox.innerHTML = "";
 
-            const metaEl = document.createElement("div");
-            metaEl.className = "inline-hover-meta";
-            metaEl.textContent = `${ex.sets} sets × ${ex.reps}` +
-              (ex.tags && ex.tags.length ? ` • ${ex.tags.join(", ")}` : "");
+              const titleEl = document.createElement("div");
+              titleEl.className = "inline-hover-title";
+              titleEl.textContent = ex.name;
 
-            const noteEl = document.createElement("div");
-            noteEl.className = "inline-hover-note";
-            noteEl.textContent = ex.note;
+              const metaEl = document.createElement("div");
+              metaEl.className = "inline-hover-meta";
+              metaEl.textContent = `${ex.sets} sets × ${ex.reps}` +
+                (ex.tags && ex.tags.length ? ` • ${ex.tags.join(", ")}` : "");
 
-            hoverBox.appendChild(titleEl);
-            hoverBox.appendChild(metaEl);
-            hoverBox.appendChild(noteEl);
-          });
+              const noteEl = document.createElement("div");
+              noteEl.className = "inline-hover-note";
+              noteEl.textContent = ex.note;
 
-          li.addEventListener("mouseleave", () => {
-            // keep last preview; comment next line if you want it hidden on leave
-            // hoverBox.style.display = "none";
-          });
+              hoverBox.appendChild(titleEl);
+              hoverBox.appendChild(metaEl);
+              hoverBox.appendChild(noteEl);
+            });
 
-          // Click: add to workout
+            li.addEventListener("mouseleave", () => {
+              hoverBox.style.display = "none";
+            });
+          } else {
+            // On touch/mobile: make sure it's hidden
+            hoverBox.style.display = "none";
+          }
+
+          // Click: add to workout (works on both desktop & mobile)
           li.addEventListener("click", () => {
             addExerciseToWorkout(catKey, ex);
           });
 
           ul.appendChild(li);
         });
+      });
+    }
+
+    function clearWorkout() {
+      // Reset global workout state
+      currentWorkout = {
+        squat: [],
+        hinge: [],
+        lunge: [],
+        unilateral: [],
+        plyo: [],
+        core: [],
+        drills: []
+      };
+
+      // All counts back to 0
+      const counts = {
+        squat: 0,
+        hinge: 0,
+        lunge: 0,
+        unilateral: 0,
+        plyo: 0,
+        core: 0,
+        drills: 0
+      };
+
+      // Re-render results in whichever mode was last used
+      renderResults({
+        error: "",
+        data: currentWorkout,
+        counts,
+        mode: lastChangedField === "total" ? "total" : "perCategory"
       });
     }
 
@@ -1623,13 +1789,18 @@
     }
 
     function applyRunnerPreset() {
+      // By default: 1 lunge, 2 unilateral, others like your old preset
       document.getElementById("totalInput").value = 10;
       document.getElementById("drillsInput").value = 2;
       document.getElementById("squatInput").value = 1;
       document.getElementById("hingeInput").value = 2;
-      document.getElementById("unilateralInput").value = 3;
+      document.getElementById("lungeInput").value = 1;
+      document.getElementById("unilateralInput").value = 2;
       document.getElementById("plyoInput").value = 1;
       document.getElementById("coreInput").value = 1;
+
+      lastChangedField = "category";
+      updateInputHighlight();
     }
 
     function updateInputHighlight() {
@@ -1812,13 +1983,56 @@
       });
     });
 
+    document.getElementById("clearBtn").addEventListener("click", clearWorkout);
+  
+    function initLibraryToggles() {
+      const groups = document.querySelectorAll(".per-category-group");
+
+      groups.forEach(group => {
+        const toggleBtn = group.querySelector(".input-toggle");
+        const header = group.querySelector(".input-group-header");
+        if (!toggleBtn || !header) return;
+
+        // Start collapsed: arrow points right
+        toggleBtn.textContent = group.classList.contains("collapsed") ? "▶" : "▼";
+
+        function toggleGroup() {
+          const nowCollapsed = group.classList.toggle("collapsed");
+          toggleBtn.textContent = nowCollapsed ? "▶" : "▼";
+
+          // Hide any visible hover details when collapsing
+          if (nowCollapsed) {
+            const hoverBox = group.querySelector(".inline-hover-detail");
+            if (hoverBox) {
+              hoverBox.style.display = "none";
+            }
+          }
+        }
+
+        // Click on the arrow itself
+        toggleBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleGroup();
+        });
+
+        // Click on the whole header (label area) also toggles
+        header.addEventListener("click", (e) => {
+          // Avoid double-handling if you clicked exactly on the button
+          if (e.target === toggleBtn) return;
+          toggleGroup();
+        });
+      });
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
       initThemeToggle();
       initLayoutToggle();
       initDragAndDrop();
       updateInputHighlight();
       renderInlineLibraries();
-      generateWorkout();
+      initLibraryToggles();
+      // generateWorkout();
+      clearWorkout();
     });
   </script>
 </body>
