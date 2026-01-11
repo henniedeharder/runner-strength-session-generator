@@ -904,6 +904,43 @@
       flex: 0 0 auto;
     }
 
+    .load-session-bar {
+      margin: 6px 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+    }
+
+    .load-session-bar select {
+      min-width: 180px;
+      max-width: 100%;
+      padding: 4px 6px;
+      border-radius: 6px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      font-size: 0.8rem;
+    }
+
+    body[data-theme="light"] .load-session-bar select {
+      background: #ffffff;
+      color: #111827;
+      border-color: #d1d5db;
+    }
+
+    .category-tip {
+      margin-top: 4px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Hide tip when the group is collapsed, so "below" doesn't show with nothing below */
+    .input-group.collapsed .category-tip {
+      display: none;
+    }
+
     /* Mobile tweaks: keep text on the left, controls grouped on the right or stacked */
     @media (max-width: 600px) {
       .exercise-main-line {
@@ -1035,6 +1072,19 @@
 
           <div id="error" class="error"></div>
 
+          <div class="controls-row">
+            <button id="generateBtn" class="btn">
+              <span class="btn-icon">⚡</span>
+              Generate workout
+            </button>
+            <button id="presetBtn" class="btn btn-secondary" type="button">
+              Use runner preset
+            </button>
+            <div>
+              <br><br>
+            </div>
+          </div>
+
           <div class="inputs-column" id="inputsColumn">
             <!-- Per category inputs (draggable) with collapsible libraries -->
             <div
@@ -1048,6 +1098,9 @@
                 <label for="drillsInput">Drills / Prehab</label>
               </div>
               <input id="drillsInput" type="number" min="0" max="3" value="2" />
+              <p class="category-tip">
+                Tip: click an exercise below to add it directly to today's session.
+              </p>
               <ul class="input-library-list" data-category-library="drills"></ul>
               <div class="inline-hover-detail" data-hover-detail="drills" style="display:none;"></div>
             </div>
@@ -1063,6 +1116,9 @@
                 <label for="plyoInput">Plyometric</label>
               </div>
               <input id="plyoInput" type="number" min="0" max="4" value="1" />
+              <p class="category-tip">
+                Tip: click an exercise below to add it directly to today's session.
+              </p>
               <ul class="input-library-list" data-category-library="plyo"></ul>
               <div class="inline-hover-detail" data-hover-detail="plyo" style="display:none;"></div>
             </div>
@@ -1078,6 +1134,9 @@
                 <label for="squatInput">Squat</label>
               </div>
               <input id="squatInput" type="number" min="0" max="1" value="1" />
+              <p class="category-tip">
+                Tip: click an exercise below to add it directly to today's session.
+              </p>
               <ul class="input-library-list" data-category-library="squat"></ul>
               <div class="inline-hover-detail" data-hover-detail="squat" style="display:none;"></div>
             </div>
@@ -1093,6 +1152,9 @@
                 <label for="hingeInput">Hinge</label>
               </div>
               <input id="hingeInput" type="number" min="0" max="5" value="2" />
+              <p class="category-tip">
+                Tip: click an exercise below to add it directly to today's session.
+              </p>
               <ul class="input-library-list" data-category-library="hinge"></ul>
               <div class="inline-hover-detail" data-hover-detail="hinge" style="display:none;"></div>
             </div>
@@ -1108,6 +1170,9 @@
                 <label for="lungeInput">Lunge</label>
               </div>
               <input id="lungeInput" type="number" min="0" max="4" value="1" />
+              <p class="category-tip">
+                Tip: click an exercise below to add it directly to today's session.
+              </p>
               <ul class="input-library-list" data-category-library="lunge"></ul>
               <div class="inline-hover-detail" data-hover-detail="lunge" style="display:none;"></div>
             </div>
@@ -1123,6 +1188,9 @@
                 <label for="unilateralInput">Unilateral</label>
               </div>
               <input id="unilateralInput" type="number" min="0" max="5" value="2" />
+              <p class="category-tip">
+                Tip: click an exercise below to add it directly to today's session.
+              </p>
               <ul class="input-library-list" data-category-library="unilateral"></ul>
               <div class="inline-hover-detail" data-hover-detail="unilateral" style="display:none;"></div>
             </div>
@@ -1138,19 +1206,12 @@
                 <label for="coreInput">Core</label>
               </div>
               <input id="coreInput" type="number" min="0" max="5" value="1" />
+              <p class="category-tip">
+                Tip: click an exercise below to add it directly to today's session.
+              </p>
               <ul class="input-library-list" data-category-library="core"></ul>
               <div class="inline-hover-detail" data-hover-detail="core" style="display:none;"></div>
             </div>
-          </div>
-
-          <div class="controls-row">
-            <button id="generateBtn" class="btn">
-              <span class="btn-icon">⚡</span>
-              Generate workout
-            </button>
-            <button id="presetBtn" class="btn btn-secondary" type="button">
-              Use runner preset
-            </button>
           </div>
         </div>
       </section>
@@ -1161,14 +1222,28 @@
           <div class="results-header">
             <h2>Your Strength Session</h2>
             <div class="results-right-actions">
-              <button id="copyBtn" class="btn btn-small" type="button">
-                <span class="btn-icon">📋</span>
-                Copy workout
+              <button id="copyBtn" class="btn btn-small btn-secondary" type="button">
+                📋 Copy workout
+              </button>
+              <button id="saveSessionBtn" class="btn btn-small btn-secondary" type="button">
+                💾 Save
+              </button>
+              <button id="loadSessionBtn" class="btn btn-small btn-secondary" type="button">
+                Load
               </button>
               <button id="clearBtn" class="btn btn-small btn-secondary" type="button">
                 ✖ Clear all
               </button>
             </div>
+          </div>
+          <div id="loadSessionBar" class="load-session-bar" style="display:none;">
+            <select id="savedSessionsSelect"></select>
+            <button id="confirmLoadSessionBtn" class="btn btn-small" type="button">
+              Load selected
+            </button>
+            <button id="deleteSessionBtn" class="btn btn-small btn-secondary" type="button">
+              Delete
+            </button>
           </div>
           <div class="results-summary-line" id="resultsSummaryLine">
             No exercises selected yet – change an input and generate.
@@ -1423,6 +1498,187 @@
       core: [],
       drills: []
     };
+
+    const SESSIONS_KEY = "runner-strength-sessions-v1";
+
+    function getSavedSessions() {
+      const raw = localStorage.getItem(SESSIONS_KEY);
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveSessionsToStorage(sessions) {
+      localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+    }
+
+    function populateSavedSessionsSelect() {
+      const select = document.getElementById("savedSessionsSelect");
+      if (!select) return;
+
+      const sessions = getSavedSessions();
+      select.innerHTML = "";
+
+      if (!sessions.length) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No saved sessions yet";
+        select.appendChild(opt);
+        select.disabled = true;
+        return;
+      }
+
+      select.disabled = false;
+
+      // Sort by name for now (could also sort by createdAt)
+      sessions
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach(session => {
+          const opt = document.createElement("option");
+          opt.value = session.id;
+          opt.textContent = session.name;
+          select.appendChild(opt);
+        });
+    }
+
+    function saveCurrentSession() {
+      // Make sure there is something to save
+      const counts = updateCountsFromCurrent();
+      const totalCount =
+        counts.squat +
+        counts.hinge +
+        counts.lunge +
+        counts.unilateral +
+        counts.plyo +
+        counts.core +
+        counts.drills;
+
+      if (totalCount === 0) {
+        alert("No exercises in this session to save yet.");
+        return;
+      }
+
+      const name = prompt("Name this session:", "Strength session");
+      if (!name) return; // cancelled or empty
+
+      const sessions = getSavedSessions();
+      const order = getCategoryOrderFromSetup();
+
+      // If a session with this name exists, offer to overwrite
+      const existingIndex = sessions.findIndex(s => s.name === name);
+
+      const newSession = {
+        id: existingIndex >= 0 && sessions[existingIndex].id
+          ? sessions[existingIndex].id
+          : Date.now().toString(),
+        name,
+        createdAt: Date.now(),
+        counts,
+        workout: currentWorkout,
+        order
+      };
+
+      if (existingIndex >= 0) {
+        const ok = confirm(`Replace existing session "${name}"?`);
+        if (!ok) return;
+        sessions[existingIndex] = newSession;
+      } else {
+        sessions.push(newSession);
+      }
+
+      saveSessionsToStorage(sessions);
+      populateSavedSessionsSelect();
+      alert(`Session "${name}" saved.`);
+    }
+
+    function loadSelectedSession() {
+      const select = document.getElementById("savedSessionsSelect");
+      if (!select || select.disabled) return;
+
+      const id = select.value;
+      if (!id) {
+        alert("No saved session selected.");
+        return;
+      }
+
+      const sessions = getSavedSessions();
+      const session = sessions.find(s => s.id === id);
+      if (!session) {
+        alert("Could not find that saved session.");
+        return;
+      }
+
+      // Restore workout + counts
+      currentWorkout = session.workout || {
+        squat: [],
+        hinge: [],
+        lunge: [],
+        unilateral: [],
+        plyo: [],
+        core: [],
+        drills: []
+      };
+
+      const counts = session.counts || updateCountsFromCurrent();
+
+      // Restore per-category inputs
+      document.getElementById("squatInput").value = counts.squat ?? 0;
+      document.getElementById("hingeInput").value = counts.hinge ?? 0;
+      document.getElementById("lungeInput").value = counts.lunge ?? 0;
+      document.getElementById("unilateralInput").value = counts.unilateral ?? 0;
+      document.getElementById("plyoInput").value = counts.plyo ?? 0;
+      document.getElementById("coreInput").value = counts.core ?? 0;
+      document.getElementById("drillsInput").value = counts.drills ?? 0;
+
+      // Restore category order if present
+      if (session.order && Array.isArray(session.order)) {
+        const container = document.getElementById("inputsColumn");
+        session.order.forEach(catKey => {
+          const group = document.querySelector(`.per-category-group[data-category="${catKey}"]`);
+          if (group && container) {
+            container.appendChild(group);
+          }
+        });
+      }
+
+      // Re-render results
+      renderResults({
+        error: "",
+        data: currentWorkout,
+        counts,
+        mode: "perCategory"
+      });
+    }
+
+    function deleteSelectedSession() {
+      const select = document.getElementById("savedSessionsSelect");
+      if (!select || select.disabled) return;
+
+      const id = select.value;
+      if (!id) {
+        alert("No saved session selected.");
+        return;
+      }
+
+      const sessions = getSavedSessions();
+      const session = sessions.find(s => s.id === id);
+      if (!session) {
+        alert("Could not find that saved session.");
+        return;
+      }
+
+      const ok = confirm(`Delete session "${session.name}"? This cannot be undone.`);
+      if (!ok) return;
+
+      const remaining = sessions.filter(s => s.id !== id);
+      saveSessionsToStorage(remaining);
+      populateSavedSessionsSelect();
+    }
 
     function getRandomSubset(arr, count) {
       const copy = [...arr];
@@ -2078,6 +2334,23 @@
     });
     document.getElementById("copyBtn").addEventListener("click", copyWorkoutToClipboard);
     document.getElementById("clearBtn").addEventListener("click", clearWorkout);
+    
+    document.getElementById("saveSessionBtn").addEventListener("click", saveCurrentSession);
+
+    document.getElementById("loadSessionBtn").addEventListener("click", () => {
+      const bar = document.getElementById("loadSessionBar");
+      if (!bar) return;
+      const isHidden = bar.style.display === "none" || bar.style.display === "";
+      if (isHidden) {
+        bar.style.display = "flex";
+        populateSavedSessionsSelect();
+      } else {
+        bar.style.display = "none";
+      }
+    });
+
+    document.getElementById("confirmLoadSessionBtn").addEventListener("click", loadSelectedSession);
+    document.getElementById("deleteSessionBtn").addEventListener("click", deleteSelectedSession);
 
     function initLibraryToggles() {
       const groups = document.querySelectorAll(".per-category-group");
@@ -2125,6 +2398,7 @@
       renderInlineLibraries();
       initLibraryToggles();
       clearWorkout();
+      populateSavedSessionsSelect();
 
       // Mobile action bar hooks
     const mobileGenerateBtn = document.getElementById("mobileGenerateBtn");
