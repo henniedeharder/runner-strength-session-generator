@@ -842,6 +842,51 @@
       background: rgba(248, 113, 113, 0.14);
       color: var(--danger);
     }
+
+    .category-header-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .category-regenerate {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 999px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .category-regenerate:hover {
+      background: rgba(79, 209, 197, 0.16);
+      color: var(--accent-strong);
+    }
+
+    .exercise-pin {
+      border: none;
+      background: transparent;
+      color: var(--accent);
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .exercise-pin:hover {
+      background: rgba(79, 209, 197, 0.16);
+    }
+
+    .exercise-item.pinned .exercise-main {
+      color: var(--accent-strong);
+    }
+
   </style>
 </head>
 <body data-theme="dark">
@@ -1367,27 +1412,44 @@
         core: coreCount,
         drills: drillsCount
       };
+
       const validationError = validatePerCategory(values);
       if (validationError) {
         return { error: validationError, data: null, counts: values, mode: "PerCategory" };
       }
 
-      const data = {
-        squat: getRandomSubset(exercises.squat, squatCount),
-        hinge: getRandomSubset(exercises.hinge, hingeCount),
-        lunge: getRandomSubset(exercises.lunge, lungeCount),
-        unilateral: getRandomSubset(exercises.unilateral, unilateralCount),
-        plyo: getRandomSubset(exercises.plyo, plyoCount),
-        core: getRandomSubset(exercises.core, coreCount),
-        drills: getRandomSubset(exercises.drills, drillsCount)
-      };
+      const data = {};
+      Object.entries(values).forEach(([catKey, count]) => {
+        const library = exercises[catKey] || [];
+        const previous = currentWorkout[catKey] || [];
+        const pinned = previous.filter(ex => ex.pinned);
+        const pinnedNames = new Set(pinned.map(ex => ex.name));
+
+        // If user pinned more than requested count, just keep the first "count"
+        const effectivePinned = pinned.slice(0, count);
+        const remainingNeeded = Math.max(count - effectivePinned.length, 0);
+
+        const pool = library.filter(ex => !pinnedNames.has(ex.name));
+        const random = getRandomSubset(pool, remainingNeeded).map(ex => ({
+          name: ex.name,
+          sets: ex.sets,
+          reps: ex.reps,
+          note: ex.note,
+          tags: ex.tags,
+          pinned: false
+        }));
+
+        data[catKey] = [...effectivePinned, ...random];
+      });
 
       return { error: "", data, counts: values, mode: "perCategory" };
     }
 
+
     function generateTotalWorkout() {
       const total = parseInt(document.getElementById("totalInput").value, 10) || 0;
-      const validationError = validateTotal(total);
+
+      const baseValidationError = validateTotal(total);
       const emptyCounts = {
         squat: 0,
         hinge: 0,
@@ -1397,46 +1459,60 @@
         core: 0,
         drills: 0
       };
-
-      if (validationError) {
-        return { error: validationError, data: null, counts: emptyCounts, mode: "total", total };
+      if (baseValidationError) {
+        return { error: baseValidationError, data: null, counts: emptyCounts, mode: "total", total };
       }
 
-      const flatList = [];
-      for (const cat of Object.keys(exercises)) {
-        exercises[cat].forEach(ex => flatList.push({ ...ex, category: cat }));
-      }
-
-      const categories = ["squat", "hinge", "lunge", "unilateral", "plyo", "core", "drills"];
-      const selected = [];
-      const usedNames = new Set();
-
-      const minRequired = Math.min(total, categories.length);
-      const shuffledCategories = [...categories].sort(() => Math.random() - 0.5);
-
-      for (let i = 0; i < minRequired; i++) {
-        const cat = shuffledCategories[i];
-        const options = exercises[cat];
-        if (!options || options.length === 0) continue;
-        const choice = getRandomSubset(options, 1)[0];
-        if (!usedNames.has(choice.name)) {
-          selected.push({ ...choice, category: cat });
-          usedNames.add(choice.name);
-        }
-      }
-
-      const remainingNeeded = total - selected.length;
-      if (remainingNeeded > 0) {
-        const remainingPool = flatList.filter(ex => !usedNames.has(ex.name));
-        for (let i = remainingPool.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [remainingPool[i], remainingPool[j]] = [remainingPool[j], remainingPool[i]];
-        }
-        remainingPool.slice(0, remainingNeeded).forEach(ex => {
-          selected.push(ex);
-          usedNames.add(ex.name);
+      // Collect pinned exercises from currentWorkout
+      const pinnedByCategory = {
+        squat: [],
+        hinge: [],
+        lunge: [],
+        unilateral: [],
+        plyo: [],
+        core: [],
+        drills: []
+      };
+      const pinnedNames = new Set();
+      Object.keys(pinnedByCategory).forEach(catKey => {
+        (currentWorkout[catKey] || []).forEach(ex => {
+          if (ex.pinned && !pinnedNames.has(ex.name)) {
+            pinnedByCategory[catKey].push(ex);
+            pinnedNames.add(ex.name);
+          }
         });
+      });
+
+      const pinnedFlat = [];
+      Object.keys(pinnedByCategory).forEach(catKey => {
+        pinnedByCategory[catKey].forEach(ex => {
+          pinnedFlat.push({ ...ex, category: catKey });
+        });
+      });
+
+      if (pinnedFlat.length > total) {
+        return {
+          error: `You have ${pinnedFlat.length} pinned exercises but total is set to ${total}. Reduce total or unpin some exercises.`,
+          data: null,
+          counts: emptyCounts,
+          mode: "total",
+          total
+        };
       }
+
+      const remainingNeeded = total - pinnedFlat.length;
+
+      // Create pool of all non-pinned exercises
+      const flatPool = [];
+      Object.keys(exercises).forEach(catKey => {
+        exercises[catKey].forEach(ex => {
+          if (!pinnedNames.has(ex.name)) {
+            flatPool.push({ ...ex, category: catKey });
+          }
+        });
+      });
+
+      const randomExtras = getRandomSubset(flatPool, remainingNeeded);
 
       const data = {
         squat: [],
@@ -1447,28 +1523,77 @@
         core: [],
         drills: []
       };
-      const counts = {
-        squat: 0,
-        hinge: 0,
-        lunge: 0,
-        unilateral: 0,
-        plyo: 0,
-        core: 0,
-        drills: 0
-      };
 
-      selected.forEach(ex => {
+      // Add pinned (keep pinned: true)
+      pinnedFlat.forEach(ex => {
         data[ex.category].push({
           name: ex.name,
           sets: ex.sets,
           reps: ex.reps,
           note: ex.note,
-          tags: ex.tags
+          tags: ex.tags,
+          pinned: true
         });
-        counts[ex.category]++;
+      });
+
+      // Add extras (pinned: false)
+      randomExtras.forEach(ex => {
+        data[ex.category].push({
+          name: ex.name,
+          sets: ex.sets,
+          reps: ex.reps,
+          note: ex.note,
+          tags: ex.tags,
+          pinned: false
+        });
+      });
+
+      const counts = {};
+      Object.keys(data).forEach(catKey => {
+        counts[catKey] = data[catKey].length;
       });
 
       return { error: "", data, counts, mode: "total", total };
+    }
+
+    function regenerateCategory(categoryKey) {
+      const mode = lastChangedField === "total" ? "total" : "perCategory";
+      const library = exercises[categoryKey] || [];
+      if (!library.length) return;
+
+      const previous = currentWorkout[categoryKey] || [];
+      const pinned = previous.filter(ex => ex.pinned);
+      const pinnedNames = new Set(pinned.map(ex => ex.name));
+
+      let desiredCount;
+      if (mode === "perCategory") {
+        const input = document.getElementById(categoryKey + "Input");
+        desiredCount = input ? (parseInt(input.value, 10) || 0) : previous.length;
+      } else {
+        // In total mode, keep the same count this category currently has
+        desiredCount = previous.length || pinned.length;
+      }
+
+      const remainingNeeded = Math.max(desiredCount - pinned.length, 0);
+      const pool = library.filter(ex => !pinnedNames.has(ex.name));
+      const random = getRandomSubset(pool, remainingNeeded).map(ex => ({
+        name: ex.name,
+        sets: ex.sets,
+        reps: ex.reps,
+        note: ex.note,
+        tags: ex.tags,
+        pinned: false
+      }));
+
+      currentWorkout[categoryKey] = [...pinned.slice(0, desiredCount), ...random];
+
+      const counts = updateCountsFromCurrent();
+      renderResults({
+        error: "",
+        data: currentWorkout,
+        counts,
+        mode
+      });
     }
 
     function updateCountsFromCurrent() {
@@ -1553,8 +1678,24 @@
           ? "0 selected"
           : `${items.length} exercise${items.length > 1 ? "s" : ""}`;
 
+        const headerRight = document.createElement("div");
+        headerRight.className = "category-header-right";
+
+        const regenBtn = document.createElement("button");
+        regenBtn.type = "button";
+        regenBtn.className = "category-regenerate";
+        regenBtn.textContent = "↻";
+        regenBtn.title = "Regenerate this category";
+        regenBtn.addEventListener("click", () => {
+          regenerateCategory(key);
+        });
+
+        headerRight.appendChild(pill);
+        headerRight.appendChild(regenBtn);
+
         header.appendChild(name);
-        header.appendChild(pill);
+        header.appendChild(headerRight);
+
         block.appendChild(header);
 
         if (items.length === 0) {
@@ -1610,9 +1751,29 @@
             removeBtn.addEventListener("click", () => {
               removeExerciseFromWorkout(key, index);
             });
+            // Pin button
+            const pinBtn = document.createElement("button");
+            pinBtn.type = "button";
+            pinBtn.className = "exercise-pin";
+            pinBtn.textContent = ex.pinned ? "★" : "☆";
+            pinBtn.title = ex.pinned
+              ? "Pinned (kept when regenerating)"
+              : "Pin (keep when regenerating)";
+            pinBtn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              ex.pinned = !ex.pinned;
+              pinBtn.textContent = ex.pinned ? "★" : "☆";
+              pinBtn.title = ex.pinned
+                ? "Pinned (kept when regenerating)"
+                : "Pin (keep when regenerating)";
+              li.classList.toggle("pinned", ex.pinned);
+            });
+
+            li.classList.toggle("pinned", !!ex.pinned);
 
             mainLineWrap.appendChild(mainLine);
             mainLineWrap.appendChild(tagsWrapper);
+            mainLineWrap.appendChild(pinBtn);
             mainLineWrap.appendChild(removeBtn);
 
             const detail = document.createElement("span");
@@ -1665,7 +1826,8 @@
         sets: exerciseObj.sets,
         reps: exerciseObj.reps,
         note: exerciseObj.note,
-        tags: exerciseObj.tags
+        tags: exerciseObj.tags,
+        pinned: false
       });
 
       const counts = updateCountsFromCurrent();
