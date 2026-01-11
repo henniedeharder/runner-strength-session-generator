@@ -1072,19 +1072,6 @@
 
           <div id="error" class="error"></div>
 
-          <div class="controls-row">
-            <button id="generateBtn" class="btn">
-              <span class="btn-icon">⚡</span>
-              Generate workout
-            </button>
-            <button id="presetBtn" class="btn btn-secondary" type="button">
-              Use runner preset
-            </button>
-            <div>
-              <br><br>
-            </div>
-          </div>
-
           <div class="inputs-column" id="inputsColumn">
             <!-- Per category inputs (draggable) with collapsible libraries -->
             <div
@@ -1213,6 +1200,16 @@
               <div class="inline-hover-detail" data-hover-detail="core" style="display:none;"></div>
             </div>
           </div>
+
+          <div class="controls-row">
+            <button id="generateBtn" class="btn">
+              <span class="btn-icon">⚡</span>
+              Generate workout
+            </button>
+            <button id="presetBtn" class="btn btn-secondary" type="button">
+              Use runner preset
+            </button>
+          </div>
         </div>
       </section>
 
@@ -1238,7 +1235,7 @@
           </div>
           <div id="loadSessionBar" class="load-session-bar" style="display:none;">
             <select id="savedSessionsSelect"></select>
-            <button id="confirmLoadSessionBtn" class="btn btn-small" type="button">
+            <button id="confirmLoadSessionBtn" class="btn btn-small btn-secondary" type="button">
               Load selected
             </button>
             <button id="deleteSessionBtn" class="btn btn-small btn-secondary" type="button">
@@ -2048,7 +2045,7 @@
         reps: exerciseObj.reps,
         note: exerciseObj.note,
         tags: exerciseObj.tags,
-        pinned: false
+        pinned: true
       });
 
       const counts = updateCountsFromCurrent();
