@@ -943,6 +943,10 @@
       .exercise-tags {
         display: none;
       }
+
+      .layout-toggle {
+        display: none;
+      }
     }
 
     .mobile-action-bar {
@@ -1021,28 +1025,17 @@
         <div class="card-inner">
           <div class="card-title">
             <h2>Setup</h2>
-            <div class="card-badge">Lower body + Core + Drills</div>
           </div>
 
           <p class="tip">
-            <strong>How it works:</strong> If your most recent change is the <strong>total exercises</strong>, we’ll
-            auto-distribute across categories (aiming for at least one per category if possible). If your last change is any
-            <strong>per-category</strong> field, we’ll use exactly those numbers. You can also drag the category cards below
-            to reorder how they appear.
+            <strong>How it works:</strong>
+            Set the number of exercises per category and click <strong>Generate workout</strong>.
+            You can click any exercise to add it, and drag category cards to change their order.
           </p>
 
           <div id="error" class="error"></div>
 
           <div class="inputs-column" id="inputsColumn">
-            <!-- Total exercises input -->
-            <div class="input-group" id="totalGroup">
-              <label for="totalInput">Total number of exercises (all categories)</label>
-              <input id="totalInput" type="number" min="1" max="27" value="10" />
-              <div class="hint">
-                We’ll pick at least one per category (if possible), then fill randomly up to this total.
-              </div>
-            </div>
-
             <!-- Per category inputs (draggable) with collapsible libraries -->
             <div
               class="input-group per-category-group collapsed"
@@ -1159,10 +1152,6 @@
               Use runner preset
             </button>
           </div>
-
-          <p class="muted" style="margin-top:8px;">
-            Current mode: <span id="modeText">Per-category</span> (chosen by your last edit). You can tick exercises off as you complete them.
-          </p>
         </div>
       </section>
 
@@ -1205,7 +1194,6 @@
   </div>
 
   <script>
-    let lastChangedField = "category";
 
     const tagTooltips = {
       "Strength": "Heavier, slower work to build force and resilience.",
@@ -1475,24 +1463,6 @@
       return "";
     }
 
-    function validateTotal(total) {
-      if (Number.isNaN(total) || total <= 0) {
-        return "Total number of exercises must be at least 1.";
-      }
-      const maxTotal =
-        exercises.squat.length +
-        exercises.hinge.length +
-        exercises.lunge.length +
-        exercises.unilateral.length +
-        exercises.plyo.length +
-        exercises.core.length +
-        exercises.drills.length;
-      if (total > maxTotal) {
-        return `Total exercises cannot exceed ${maxTotal} (the number of unique exercises available).`;
-      }
-      return "";
-    }
-
     function generatePerCategoryWorkout() {
       const squatCount = parseInt(document.getElementById("squatInput").value, 10) || 0;
       const hingeCount = parseInt(document.getElementById("hingeInput").value, 10) || 0;
@@ -1544,119 +1514,8 @@
       return { error: "", data, counts: values, mode: "perCategory" };
     }
 
-
-    function generateTotalWorkout() {
-      const total = parseInt(document.getElementById("totalInput").value, 10) || 0;
-
-      const baseValidationError = validateTotal(total);
-      const emptyCounts = {
-        squat: 0,
-        hinge: 0,
-        lunge: 0,
-        unilateral: 0,
-        plyo: 0,
-        core: 0,
-        drills: 0
-      };
-      if (baseValidationError) {
-        return { error: baseValidationError, data: null, counts: emptyCounts, mode: "total", total };
-      }
-
-      // Collect pinned exercises from currentWorkout
-      const pinnedByCategory = {
-        squat: [],
-        hinge: [],
-        lunge: [],
-        unilateral: [],
-        plyo: [],
-        core: [],
-        drills: []
-      };
-      const pinnedNames = new Set();
-      Object.keys(pinnedByCategory).forEach(catKey => {
-        (currentWorkout[catKey] || []).forEach(ex => {
-          if (ex.pinned && !pinnedNames.has(ex.name)) {
-            pinnedByCategory[catKey].push(ex);
-            pinnedNames.add(ex.name);
-          }
-        });
-      });
-
-      const pinnedFlat = [];
-      Object.keys(pinnedByCategory).forEach(catKey => {
-        pinnedByCategory[catKey].forEach(ex => {
-          pinnedFlat.push({ ...ex, category: catKey });
-        });
-      });
-
-      if (pinnedFlat.length > total) {
-        return {
-          error: `You have ${pinnedFlat.length} pinned exercises but total is set to ${total}. Reduce total or unpin some exercises.`,
-          data: null,
-          counts: emptyCounts,
-          mode: "total",
-          total
-        };
-      }
-
-      const remainingNeeded = total - pinnedFlat.length;
-
-      // Create pool of all non-pinned exercises
-      const flatPool = [];
-      Object.keys(exercises).forEach(catKey => {
-        exercises[catKey].forEach(ex => {
-          if (!pinnedNames.has(ex.name)) {
-            flatPool.push({ ...ex, category: catKey });
-          }
-        });
-      });
-
-      const randomExtras = getRandomSubset(flatPool, remainingNeeded);
-
-      const data = {
-        squat: [],
-        hinge: [],
-        lunge: [],
-        unilateral: [],
-        plyo: [],
-        core: [],
-        drills: []
-      };
-
-      // Add pinned (keep pinned: true)
-      pinnedFlat.forEach(ex => {
-        data[ex.category].push({
-          name: ex.name,
-          sets: ex.sets,
-          reps: ex.reps,
-          note: ex.note,
-          tags: ex.tags,
-          pinned: true
-        });
-      });
-
-      // Add extras (pinned: false)
-      randomExtras.forEach(ex => {
-        data[ex.category].push({
-          name: ex.name,
-          sets: ex.sets,
-          reps: ex.reps,
-          note: ex.note,
-          tags: ex.tags,
-          pinned: false
-        });
-      });
-
-      const counts = {};
-      Object.keys(data).forEach(catKey => {
-        counts[catKey] = data[catKey].length;
-      });
-
-      return { error: "", data, counts, mode: "total", total };
-    }
-
     function regenerateCategory(categoryKey) {
-      const mode = lastChangedField === "total" ? "total" : "perCategory";
+      const mode = "perCategory";
       const library = exercises[categoryKey] || [];
       if (!library.length) return;
 
@@ -1664,14 +1523,8 @@
       const pinned = previous.filter(ex => ex.pinned);
       const pinnedNames = new Set(pinned.map(ex => ex.name));
 
-      let desiredCount;
-      if (mode === "perCategory") {
-        const input = document.getElementById(categoryKey + "Input");
-        desiredCount = input ? (parseInt(input.value, 10) || 0) : previous.length;
-      } else {
-        // In total mode, keep the same count this category currently has
-        desiredCount = previous.length || pinned.length;
-      }
+      const input = document.getElementById(categoryKey + "Input");
+      const desiredCount = input ? (parseInt(input.value, 10) || 0) : previous.length;
 
       const remainingNeeded = Math.max(desiredCount - pinned.length, 0);
       const pool = library.filter(ex => !pinnedNames.has(ex.name));
@@ -1708,7 +1561,7 @@
     }
 
     function renderResults(resultObject) {
-      const { error, data, counts, mode } = resultObject;
+      const { error, data, counts } = resultObject;
       const errorDiv = document.getElementById("error");
       const resultsDiv = document.getElementById("results");
       const summaryLine = document.getElementById("resultsSummaryLine");
@@ -1728,7 +1581,10 @@
       // Sync global state
       currentWorkout = data;
 
-      modeText.textContent = mode === "total" ? "Total-exercises" : "Per-category";
+      if (modeText) {
+        modeText.textContent = "Per-category";
+      }
+
       resultsDiv.innerHTML = "";
 
       const totalExercises =
@@ -1919,7 +1775,7 @@
         error: "",
         data: currentWorkout,
         counts,
-        mode: lastChangedField === "total" ? "total" : "perCategory"
+        mode: "perCategory"
       });
     }
 
@@ -1945,7 +1801,7 @@
         error: "",
         data: currentWorkout,
         counts,
-        mode: lastChangedField === "total" ? "total" : "perCategory"
+        mode: "perCategory"
       });
     }
 
@@ -2042,26 +1898,22 @@
         drills: 0
       };
 
-      // Re-render results in whichever mode was last used
+      // Re-render (per-category only)
       renderResults({
         error: "",
         data: currentWorkout,
         counts,
-        mode: lastChangedField === "total" ? "total" : "perCategory"
+        mode: "perCategory"
       });
     }
 
     function generateWorkout() {
-      const mode = lastChangedField === "total" ? "total" : "perCategory";
-      const result =
-        mode === "perCategory" ? generatePerCategoryWorkout() : generateTotalWorkout();
+      const result = generatePerCategoryWorkout();
       renderResults(result);
-      updateInputHighlight();
     }
 
     function applyRunnerPreset() {
       // By default: 1 lunge, 2 unilateral, others like your old preset
-      document.getElementById("totalInput").value = 10;
       document.getElementById("drillsInput").value = 2;
       document.getElementById("squatInput").value = 1;
       document.getElementById("hingeInput").value = 2;
@@ -2069,22 +1921,6 @@
       document.getElementById("unilateralInput").value = 2;
       document.getElementById("plyoInput").value = 1;
       document.getElementById("coreInput").value = 1;
-
-      lastChangedField = "category";
-      updateInputHighlight();
-    }
-
-    function updateInputHighlight() {
-      const totalGroup = document.getElementById("totalGroup");
-      const perCategoryGroups = document.querySelectorAll(".per-category-group");
-
-      if (lastChangedField === "total") {
-        totalGroup.classList.remove("dimmed");
-        perCategoryGroups.forEach(g => g.classList.add("dimmed"));
-      } else {
-        totalGroup.classList.add("dimmed");
-        perCategoryGroups.forEach(g => g.classList.remove("dimmed"));
-      }
     }
 
     function copyWorkoutToClipboard() {
@@ -2241,21 +2077,8 @@
       generateWorkout();
     });
     document.getElementById("copyBtn").addEventListener("click", copyWorkoutToClipboard);
-
-    document.getElementById("totalInput").addEventListener("input", () => {
-      lastChangedField = "total";
-      updateInputHighlight();
-    });
-
-    ["squatInput", "hingeInput", "unilateralInput", "plyoInput", "coreInput", "drillsInput"].forEach(id => {
-      document.getElementById(id).addEventListener("input", () => {
-        lastChangedField = "category";
-        updateInputHighlight();
-      });
-    });
-
     document.getElementById("clearBtn").addEventListener("click", clearWorkout);
-  
+
     function initLibraryToggles() {
       const groups = document.querySelectorAll(".per-category-group");
 
@@ -2299,7 +2122,6 @@
       initThemeToggle();
       initLayoutToggle();
       initDragAndDrop();
-      updateInputHighlight();
       renderInlineLibraries();
       initLibraryToggles();
       clearWorkout();
